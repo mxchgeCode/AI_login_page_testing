@@ -12,7 +12,6 @@ def test_login():
                 "https://practicetestautomation.com/practice-test-login/",
                 wait_until="domcontentloaded",
             )
-
             print(page.content())  # отладка HTML
 
             page.wait_for_selector("#submit", timeout=15000, state="visible")

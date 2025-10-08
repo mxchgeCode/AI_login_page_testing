@@ -35,7 +35,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests pytest flake8 playwright
+        pip install requests pytest flake8 playwright coverage pytest-cov
         playwright install chromium
 
     - name: Set up environment
@@ -60,7 +60,22 @@ jobs:
         echo "Running smart test generation..."
         python smart_test_generator.py
 
-    - name: Run all tests
+    - name: Run tests with coverage
+      run: |
+        echo "Running tests with coverage..."
+        coverage run -m pytest test_generated.py -v --cov=app --cov-report=term
+        echo "COVERAGE_EXIT_CODE=$?" >> $GITHUB_ENV
+
+    - name: Generate coverage reports
+      run: |
+        echo "Generating coverage reports..."
+        coverage combine
+        coverage html -d coverage_html
+        coverage xml -o coverage.xml
+        coverage report -m > coverage.txt
+        coverage json -o coverage.json
+
+    - name: Run all tests (legacy)
       run: |
         echo "Running test suite..."
         python test_runner.py
@@ -85,16 +100,22 @@ jobs:
 
         echo "Test suite completed successfully"
 
-    - name: Upload test results
+    - name: Upload test results and coverage
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results
+        name: test-results-coverage
         path: |
           test_generated.py
           test_config.json
           app_hash.txt
-        retention-days: 7
+          coverage.xml
+          coverage.txt
+          coverage.json
+          coverage_html/
+          app.py
+          .coveragerc
+        retention-days: 14
 
     - name: Comment PR with test results
       if: github.event_name == 'pull_request'
