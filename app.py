@@ -105,7 +105,6 @@ def test_negative_password():
             # Проверить, что текст сообщения об ошибке "Your password is invalid!"
             error_text = error_element.text_content()
             print(f"Error message: {error_text}")
-
             assert (
                 "Your password is invalid!" in error_text
             ), f"Expected error message not found. Actual: {error_text}"

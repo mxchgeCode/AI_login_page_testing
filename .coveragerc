@@ -1,8 +1,7 @@
 [run]
-source = .
+source = app
 include =
     app.py
-    test_generated.py
 omit =
     */tests/*
     */test_*

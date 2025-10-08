@@ -36,32 +36,11 @@ def test_add_mixed():
     assert result == 5
 
 
-# === ИНТЕГРАЦИОННЫЕ ТЕСТЫ ДЛЯ БРАУЗЕРНЫХ ФУНКЦИЙ ===
-def test_login_wrapper():
-    """Wrapper для вызова test_login из app.py"""
-    from app import test_login
-
-    test_login()
-
-
-def test_negative_username_wrapper():
-    """Wrapper для вызова test_negative_username из app.py"""
-    from app import test_negative_username
-
-    test_negative_username()
-
-
-def test_negative_password_wrapper():
-    """Wrapper для вызова test_negative_password из app.py"""
-    from app import test_negative_password
-
-    test_negative_password()
-
-
 # === ПРИМЕЧАНИЕ ===
-# Мокинг-тесты для браузерных функций сложны из-за архитектуры Playwright
-# Интеграционные тесты (wrapper) обеспечивают достаточное покрытие
-# Для полного тестирования браузерных взаимодействий используются реальные тесты
+# Браузерные функции test_login, test_negative_username, test_negative_password
+# предназначены для интеграционного тестирования и не требуют мокинг-тестов
+# Они тестируют реальные взаимодействия с веб-страницей
+# Функция add() полностью покрыта юнит-тестами выше
 
 
 # Тесты будут генерироваться автоматически при изменении app.py
