@@ -64,6 +64,9 @@ jobs:
       run: |
         echo "Running test suite..."
         python test_runner.py
+        TEST_EXIT_CODE=$?
+        echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
+        exit $TEST_EXIT_CODE
 
     - name: Upload test results
       if: always()
