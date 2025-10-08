@@ -1,6 +1,10 @@
 from playwright.sync_api import sync_playwright
 
 
+def add(a, b):
+    return a + b
+
+
 def test_login():
     """Test case 1: Positive login test"""
     with sync_playwright() as p:

@@ -86,7 +86,9 @@ class TestRunner:
         if not api_key:
             print("   OPENROUTER_API_KEY не настроен - пропускаем генерацию тестов")
             results["generation_success"] = True  # Пропуск = успех
-            results["report"].append("Генерация тестов пропущена (API ключ не настроен)")
+            results["report"].append(
+                "Генерация тестов пропущена (API ключ не настроен)"
+            )
         else:
             results["generation_success"] = generator.run_full_cycle()
 

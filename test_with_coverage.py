@@ -23,14 +23,16 @@ def run_tests_with_coverage():
     # Запускаем тесты с coverage
     print("Запускаем тесты с coverage...")
     cmd = [
-        "coverage", "run",
-        "-m", "pytest",
+        "coverage",
+        "run",
+        "-m",
+        "pytest",
         "test_generated.py",
         "-v",
         "--cov=app",
         "--cov-report=term",
         "--cov-report=html",
-        "--cov-report=xml"
+        "--cov-report=xml",
     ]
 
     try:
@@ -43,17 +45,31 @@ def run_tests_with_coverage():
             print("Генерируем отчеты покрытия...")
 
             # HTML отчет
-            html_result = subprocess.run(["coverage", "html", "-d", "coverage_html"], capture_output=True, text=True)
+            html_result = subprocess.run(
+                ["coverage", "html", "-d", "coverage_html"],
+                capture_output=True,
+                text=True,
+            )
 
             # XML отчет для CI/CD
-            xml_result = subprocess.run(["coverage", "xml", "-o", "coverage.xml"], capture_output=True, text=True)
+            xml_result = subprocess.run(
+                ["coverage", "xml", "-o", "coverage.xml"],
+                capture_output=True,
+                text=True,
+            )
 
             # JSON отчет
-            json_result = subprocess.run(["coverage", "json", "-o", "coverage.json"], capture_output=True, text=True)
+            json_result = subprocess.run(
+                ["coverage", "json", "-o", "coverage.json"],
+                capture_output=True,
+                text=True,
+            )
 
             # Подробный текстовый отчет
             print("\nПодробный отчет покрытия:")
-            report_result = subprocess.run(["coverage", "report", "-m"], capture_output=True, text=True)
+            report_result = subprocess.run(
+                ["coverage", "report", "-m"], capture_output=True, text=True
+            )
 
             # Проверяем, были ли ошибки
             if html_result.returncode == 0 and xml_result.returncode == 0:

@@ -35,7 +35,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests pytest flake8 playwright coverage pytest-cov
+        pip install requests pytest flake8 playwright coverage pytest-cov pytest-mock
         playwright install chromium
 
     - name: Set up environment
