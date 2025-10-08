@@ -2,6 +2,7 @@ from playwright.sync_api import sync_playwright
 
 
 def test_login():
+    """Test case 1: Positive login test"""
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         try:
