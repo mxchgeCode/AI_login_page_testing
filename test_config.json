@@ -8,7 +8,7 @@
     "auto_generate": true,
     "validate_existing_tests": true,
     "run_tests_after_generation": true,
-    "api_model": "qwen/qwen3-coder:free",
+    "api_model": "meta-llama/llama-3.3-8b-instruct:free",
     "max_tokens": 2000,
     "temperature": 0
   }
