@@ -26,7 +26,7 @@ def demo():
 
     # Проверяем изменения
     print("2️⃣ Проверка изменений в коде...")
-    app_file = generator.config.get('app_file', 'app.py')
+    app_file = generator.config.get("app_file", "app.py")
     if generator.tracker.has_file_changed(app_file):
         print("   ✅ Обнаружены изменения в коде")
     else:
@@ -55,7 +55,7 @@ def demo():
     print("=" * 60)
 
     # Возвращаем код выхода для CI/CD
-    return 0 if results['tests_passed'] else 1
+    return 0 if results["tests_passed"] else 1
 
 
 if __name__ == "__main__":

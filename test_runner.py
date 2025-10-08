@@ -17,22 +17,25 @@ class TestRunner:
     def _load_config(self) -> Dict:
         """Загружает конфигурацию из файла"""
         if os.path.exists(self.config_file):
-            with open(self.config_file, 'r', encoding='utf-8') as f:
+            with open(self.config_file, "r", encoding="utf-8") as f:
                 return json.load(f)
         return {}
 
     def run_tests(self) -> Tuple[int, str]:
         """Запускает тесты и возвращает код выхода и вывод"""
-        tests_file = self.config.get('tests_file', 'test_generated.py')
+        tests_file = self.config.get("tests_file", "test_generated.py")
 
         if not os.path.exists(tests_file):
             return 0, f"Файл тестов не найден: {tests_file}. Создайте тесты сначала."
 
         try:
             # Запускаем pytest
-            result = subprocess.run([
-                sys.executable, '-m', 'pytest', tests_file, '-v', '--tb=short'
-            ], capture_output=True, text=True, timeout=300)
+            result = subprocess.run(
+                [sys.executable, "-m", "pytest", tests_file, "-v", "--tb=short"],
+                capture_output=True,
+                text=True,
+                timeout=300,
+            )
 
             return result.returncode, result.stdout + result.stderr
 
@@ -43,15 +46,17 @@ class TestRunner:
 
     def run_flake8_linting(self) -> Tuple[int, str]:
         """Запускает линтинг с помощью flake8"""
-        tests_file = self.config.get('tests_file', 'test_generated.py')
+        tests_file = self.config.get("tests_file", "test_generated.py")
 
         if not os.path.exists(tests_file):
             return 0, f"Файл тестов не найден: {tests_file}"
 
         try:
-            result = subprocess.run([
-                'flake8', tests_file, '--max-line-length=100', '--ignore=E501,W503'
-            ], capture_output=True, text=True)
+            result = subprocess.run(
+                ["flake8", tests_file, "--max-line-length=100", "--ignore=E501,W503"],
+                capture_output=True,
+                text=True,
+            )
 
             return result.returncode, result.stdout + result.stderr
 
@@ -65,17 +70,17 @@ class TestRunner:
         print("=== НАЧАЛО ПОЛНОГО ЦИКЛА ТЕСТИРОВАНИЯ ===")
 
         results = {
-            'generation_success': False,
-            'validation_passed': False,
-            'tests_passed': False,
-            'linting_passed': False,
-            'report': []
+            "generation_success": False,
+            "validation_passed": False,
+            "tests_passed": False,
+            "linting_passed": False,
+            "report": [],
         }
 
         # 1. Генерация/обновление тестов
         print("\n1. Генерация и обновление тестов...")
         generator = SmartTestGenerator(self.config_file)
-        results['generation_success'] = generator.run_full_cycle()
+        results["generation_success"] = generator.run_full_cycle()
 
         # 2. Валидация тестов
         print("\n2. Валидация тестов...")
@@ -84,55 +89,61 @@ class TestRunner:
 
         if validation_results:
             valid_tests = validator.get_valid_tests()
-            results['validation_passed'] = len(valid_tests) > 0
-            results['report'].append(f"Валидных тестов: {len(valid_tests)}")
-            results['report'].append(f"Всего тестов: {len(validation_results)}")
+            results["validation_passed"] = len(valid_tests) > 0
+            results["report"].append(f"Валидных тестов: {len(valid_tests)}")
+            results["report"].append(f"Всего тестов: {len(validation_results)}")
         else:
-            results['validation_passed'] = True  # Нет тестов - это тоже валидно
-            results['report'].append("Нет тестов для валидации")
+            results["validation_passed"] = True  # Нет тестов - это тоже валидно
+            results["report"].append("Нет тестов для валидации")
 
         # 3. Запуск тестов
         print("\n3. Запуск тестов...")
         test_returncode, test_output = self.run_tests()
 
         if test_returncode == 0:
-            results['tests_passed'] = True
-            results['report'].append("Все тесты прошли успешно")
+            results["tests_passed"] = True
+            results["report"].append("Все тесты прошли успешно")
         else:
-            results['tests_passed'] = False
-            results['report'].append("Некоторые тесты провалились")
-            results['report'].append(f"Вывод pytest:\n{test_output}")
+            results["tests_passed"] = False
+            results["report"].append("Некоторые тесты провалились")
+            results["report"].append(f"Вывод pytest:\n{test_output}")
 
         # 4. Линтинг
         print("\n4. Проверка стиля кода...")
         lint_returncode, lint_output = self.run_flake8_linting()
 
         if lint_returncode == 0:
-            results['linting_passed'] = True
-            results['report'].append("Стиль кода корректен")
+            results["linting_passed"] = True
+            results["report"].append("Стиль кода корректен")
         else:
-            results['linting_passed'] = False
-            results['report'].append("Найдены проблемы стиля кода")
+            results["linting_passed"] = False
+            results["report"].append("Найдены проблемы стиля кода")
             if lint_output.strip():
-                results['report'].append(f"Вывод flake8:\n{lint_output}")
+                results["report"].append(f"Вывод flake8:\n{lint_output}")
 
         # 5. Итоговый отчет
         print("\n=== ИТОГОВЫЙ ОТЧЕТ ===")
-        print(f"Генерация тестов: {'[OK]' if results['generation_success'] else '[FAIL]'}")
-        print(f"Валидация тестов: {'[OK]' if results['validation_passed'] else '[FAIL]'}")
+        print(
+            f"Генерация тестов: {'[OK]' if results['generation_success'] else '[FAIL]'}"
+        )
+        print(
+            f"Валидация тестов: {'[OK]' if results['validation_passed'] else '[FAIL]'}"
+        )
         print(f"Запуск тестов: {'[OK]' if results['tests_passed'] else '[FAIL]'}")
         print(f"Линтинг: {'[OK]' if results['linting_passed'] else '[FAIL]'}")
 
-        success_count = sum([
-            results['generation_success'],
-            results['validation_passed'],
-            results['tests_passed'],
-            results['linting_passed']
-        ])
+        success_count = sum(
+            [
+                results["generation_success"],
+                results["validation_passed"],
+                results["tests_passed"],
+                results["linting_passed"],
+            ]
+        )
 
         print(f"\nУспешно: {success_count}/4")
 
-        if not results['tests_passed']:
+        if not results["tests_passed"]:
             print("\nОШИБКА: ТЕСТИРОВАНИЕ ПРОВАЛЕНО")
             return results
 
@@ -147,11 +158,7 @@ class TestRunner:
         """Запускает только существующие тесты без генерации"""
         print("=== ЗАПУСК СУЩЕСТВУЮЩИХ ТЕСТОВ ===")
 
-        results = {
-            'tests_passed': False,
-            'linting_passed': False,
-            'report': []
-        }
+        results = {"tests_passed": False, "linting_passed": False, "report": []}
 
         # Проверяем валидацию
         validator = TestValidator(self.config_file)
@@ -159,35 +166,35 @@ class TestRunner:
 
         if validation_results:
             valid_tests = validator.get_valid_tests()
-            results['report'].append(f"Валидных тестов: {len(valid_tests)}")
-            results['report'].append(f"Всего тестов: {len(validation_results)}")
+            results["report"].append(f"Валидных тестов: {len(valid_tests)}")
+            results["report"].append(f"Всего тестов: {len(validation_results)}")
 
             if not valid_tests:
-                results['report'].append("Нет валидных тестов для запуска")
+                results["report"].append("Нет валидных тестов для запуска")
                 return results
 
         # Запуск тестов
         test_returncode, test_output = self.run_tests()
 
         if test_returncode == 0:
-            results['tests_passed'] = True
-            results['report'].append("Все тесты прошли успешно")
+            results["tests_passed"] = True
+            results["report"].append("Все тесты прошли успешно")
         else:
-            results['tests_passed'] = False
-            results['report'].append("Некоторые тесты провалились")
-            results['report'].append(f"Вывод pytest:\n{test_output}")
+            results["tests_passed"] = False
+            results["report"].append("Некоторые тесты провалились")
+            results["report"].append(f"Вывод pytest:\n{test_output}")
 
         # Линтинг
         lint_returncode, lint_output = self.run_flake8_linting()
 
         if lint_returncode == 0:
-            results['linting_passed'] = True
-            results['report'].append("Стиль кода корректен")
+            results["linting_passed"] = True
+            results["report"].append("Стиль кода корректен")
         else:
-            results['linting_passed'] = False
-            results['report'].append("Найдены проблемы стиля кода")
+            results["linting_passed"] = False
+            results["report"].append("Найдены проблемы стиля кода")
             if lint_output.strip():
-                results['report'].append(f"Вывод flake8:\n{lint_output}")
+                results["report"].append(f"Вывод flake8:\n{lint_output}")
 
         return results
 
@@ -199,14 +206,14 @@ def main():
         runner = TestRunner()
         results = runner.run_tests_only()
 
-        if not results['tests_passed']:
+        if not results["tests_passed"]:
             sys.exit(1)
     else:
         # Полный цикл
         runner = TestRunner()
         results = runner.run_full_test_cycle()
 
-        if not results['tests_passed']:
+        if not results["tests_passed"]:
             sys.exit(1)
 
 

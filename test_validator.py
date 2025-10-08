@@ -16,7 +16,7 @@ class TestValidator:
     def _load_config(self) -> Dict:
         """Загружает конфигурацию из файла"""
         if os.path.exists(self.config_file):
-            with open(self.config_file, 'r', encoding='utf-8') as f:
+            with open(self.config_file, "r", encoding="utf-8") as f:
                 return json.load(f)
         return {}
 
@@ -41,7 +41,7 @@ class TestValidator:
         if not os.path.exists(file_path):
             return set()
 
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             code = f.read()
 
         return self.extract_functions_from_code(code)
@@ -51,7 +51,7 @@ class TestValidator:
         if not os.path.exists(file_path):
             return {}
 
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             code = f.read()
 
         test_functions = {}
@@ -60,7 +60,7 @@ class TestValidator:
             tree = ast.parse(code)
 
             for node in ast.walk(tree):
-                if isinstance(node, ast.FunctionDef) and node.name.startswith('test_'):
+                if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
                     covered_functions = self._extract_covered_functions_from_test(node)
                     test_functions[node.name] = covered_functions
 
@@ -69,7 +69,9 @@ class TestValidator:
 
         return test_functions
 
-    def _extract_covered_functions_from_test(self, test_node: ast.FunctionDef) -> List[str]:
+    def _extract_covered_functions_from_test(
+        self, test_node: ast.FunctionDef
+    ) -> List[str]:
         """Извлекает названия функций, покрываемых тестом"""
         covered_functions = []
 
@@ -81,14 +83,16 @@ class TestValidator:
                 elif isinstance(node.func, ast.Attribute):
                     # Вызов метода (obj.method())
                     if isinstance(node.func.value, ast.Name):
-                        covered_functions.append(f"{node.func.value.id}.{node.func.attr}")
+                        covered_functions.append(
+                            f"{node.func.value.id}.{node.func.attr}"
+                        )
 
         return list(set(covered_functions))  # Убираем дубликаты
 
     def validate_tests(self) -> Dict[str, Dict[str, any]]:
         """Проверяет актуальность всех тестов"""
-        app_file = self.config.get('app_file', 'app.py')
-        tests_file = self.config.get('tests_file', 'test_generated.py')
+        app_file = self.config.get("app_file", "app.py")
+        tests_file = self.config.get("tests_file", "test_generated.py")
 
         if not os.path.exists(app_file):
             return {}
@@ -111,17 +115,25 @@ class TestValidator:
 
         for test_name, covered_functions in test_functions.items():
             # Проверяем, какие функции из покрываемых тестом все еще существуют
-            existing_functions = [func for func in covered_functions if func in app_functions]
-            missing_functions = [func for func in covered_functions if func not in app_functions]
+            existing_functions = [
+                func for func in covered_functions if func in app_functions
+            ]
+            missing_functions = [
+                func for func in covered_functions if func not in app_functions
+            ]
 
             is_valid = len(missing_functions) == 0
 
             validation_results[test_name] = {
-                'is_valid': is_valid,
-                'covered_functions': covered_functions,
-                'existing_functions': existing_functions,
-                'missing_functions': missing_functions,
-                'coverage_percentage': len(existing_functions) / len(covered_functions) * 100 if covered_functions else 0
+                "is_valid": is_valid,
+                "covered_functions": covered_functions,
+                "existing_functions": existing_functions,
+                "missing_functions": missing_functions,
+                "coverage_percentage": (
+                    len(existing_functions) / len(covered_functions) * 100
+                    if covered_functions
+                    else 0
+                ),
             }
 
         return validation_results
@@ -129,12 +141,20 @@ class TestValidator:
     def get_obsolete_tests(self) -> List[str]:
         """Возвращает список устаревших тестов"""
         validation_results = self.validate_tests()
-        return [test_name for test_name, result in validation_results.items() if not result['is_valid']]
+        return [
+            test_name
+            for test_name, result in validation_results.items()
+            if not result["is_valid"]
+        ]
 
     def get_valid_tests(self) -> List[str]:
         """Возвращает список актуальных тестов"""
         validation_results = self.validate_tests()
-        return [test_name for test_name, result in validation_results.items() if result['is_valid']]
+        return [
+            test_name
+            for test_name, result in validation_results.items()
+            if result["is_valid"]
+        ]
 
     def print_validation_report(self):
         """Выводит отчет о валидации тестов"""
@@ -157,25 +177,25 @@ class TestValidator:
             print(f"\nУстаревшие тесты (нужно обновить или удалить):")
             for test_name in obsolete_tests:
                 result = validation_results[test_name]
-                missing = ', '.join(result['missing_functions'])
+                missing = ", ".join(result["missing_functions"])
                 print(f"  - {test_name}: отсутствуют функции - {missing}")
 
         if valid_tests:
             print(f"\nАктуальные тесты:")
             for test_name in valid_tests:
                 result = validation_results[test_name]
-                coverage = result['coverage_percentage']
+                coverage = result["coverage_percentage"]
                 print(f"  - {test_name}: покрытие {coverage:.1f}%")
 
     def remove_obsolete_tests(self) -> int:
         """Удаляет устаревшие тесты из файла"""
-        tests_file = self.config.get('tests_file', 'test_generated.py')
+        tests_file = self.config.get("tests_file", "test_generated.py")
 
         if not os.path.exists(tests_file):
             return 0
 
         # Читаем текущие тесты
-        with open(tests_file, 'r', encoding='utf-8') as f:
+        with open(tests_file, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Получаем устаревшие тесты
@@ -186,7 +206,7 @@ class TestValidator:
             return 0
 
         # Создаем новое содержимое без устаревших тестов
-        lines = content.split('\n')
+        lines = content.split("\n")
         new_lines = []
         current_test = None
         test_lines = []
@@ -196,7 +216,7 @@ class TestValidator:
             line = lines[i]
 
             # Проверяем, начинается ли новая функция
-            if line.strip().startswith('def ') and '(' in line:
+            if line.strip().startswith("def ") and "(" in line:
                 # Если у нас был предыдущий тест, сохраняем или пропускаем его
                 if current_test and test_lines:
                     if current_test not in obsolete_tests:
@@ -205,7 +225,7 @@ class TestValidator:
                         print(f"Удален устаревший тест: {current_test}")
 
                 # Начинаем новый тест
-                current_test = line.strip().split('(')[0].replace('def ', '')
+                current_test = line.strip().split("(")[0].replace("def ", "")
                 test_lines = [line]
             else:
                 if current_test:
@@ -225,8 +245,8 @@ class TestValidator:
             new_lines = lines
 
         # Записываем обновленный файл
-        with open(tests_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(new_lines))
+        with open(tests_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(new_lines))
 
         return len(obsolete_tests)
 

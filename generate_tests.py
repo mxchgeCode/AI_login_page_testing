@@ -10,13 +10,13 @@ def extract_code_from_response(text: str) -> str:
     Извлекает Python-код из ответа модели.
     Удаляет строки с маркерами кода (``````python).
     """
-    lines = text.split('\n')
+    lines = text.split("\n")
     cleaned_lines = []
     for line in lines:
-        if line.strip() in ('``````python'):
+        if line.strip() in ("``````python"):
             continue
         cleaned_lines.append(line)
-    return '\n'.join(cleaned_lines).strip()
+    return "\n".join(cleaned_lines).strip()
 
 
 def generate_unit_test_for_code(code: str) -> str:
@@ -60,7 +60,7 @@ def generate_unit_test_for_code(code: str) -> str:
         response.raise_for_status()
 
     result = response.json()
-    raw_response = result['choices'][0]['message']['content']
+    raw_response = result["choices"][0]["message"]["content"]
 
     print("=== Сырой ответ модели (первые 300 символов) ===")
     print(raw_response[:300])
@@ -76,13 +76,13 @@ def generate_unit_test_for_code(code: str) -> str:
 
 
 def main():
-    source_file = 'app.py'
-    output_tests_file = 'test_generated.py'
+    source_file = "app.py"
+    output_tests_file = "test_generated.py"
 
     if not os.path.isfile(source_file):
         raise FileNotFoundError(f"Файл {source_file} не найден!")
 
-    with open(source_file, 'r', encoding='utf-8') as f:
+    with open(source_file, "r", encoding="utf-8") as f:
         raw_code = f.read()
 
     print("Файл прочитан, генерируем тесты...")
@@ -95,13 +95,13 @@ def main():
     tests_with_import = import_line + tests
 
     try:
-        compile(tests_with_import, '<string>', 'exec')
+        compile(tests_with_import, "<string>", "exec")
         print("Сгенерированный код валиден")
     except SyntaxError as e:
         print(f"Синтаксическая ошибка в сгенерированном коде: {e}")
         print("Сохраняем как есть...")
 
-    with open(output_tests_file, 'w', encoding='utf-8') as f:
+    with open(output_tests_file, "w", encoding="utf-8") as f:
         f.write(tests_with_import)
 
     print(f"Тесты записаны в {output_tests_file}")
