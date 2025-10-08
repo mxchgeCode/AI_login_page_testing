@@ -16,7 +16,6 @@ def test_login():
             page.wait_for_selector("#submit", timeout=15000, state="visible")
             page.fill('input[name="username"]', "student")
             page.fill('input[name="password"]', "Password123")
-
             page.click("#submit")
 
             page.wait_for_load_state("networkidle")

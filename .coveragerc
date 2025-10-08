@@ -1,0 +1,27 @@
+[run]
+source = app
+include =
+    app.py
+omit =
+    */tests/*
+    */test_*
+    */__pycache__/*
+    */.pytest_cache/*
+    */.github/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if settings.DEBUG
+    raise AssertionError
+    raise NotImplementedError
+    if 0:
+    if __name__ == .__main__.:
+
+[html]
+directory = coverage_html
+
+[xml]
+output = coverage.xml
