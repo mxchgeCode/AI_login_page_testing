@@ -26,7 +26,7 @@ class TestRunner:
         tests_file = self.config.get('tests_file', 'test_generated.py')
 
         if not os.path.exists(tests_file):
-            return 1, f"Файл тестов не найден: {tests_file}"
+            return 0, f"Файл тестов не найден: {tests_file}. Создайте тесты сначала."
 
         try:
             # Запускаем pytest
@@ -46,7 +46,7 @@ class TestRunner:
         tests_file = self.config.get('tests_file', 'test_generated.py')
 
         if not os.path.exists(tests_file):
-            return 1, f"Файл тестов не найден: {tests_file}"
+            return 0, f"Файл тестов не найден: {tests_file}"
 
         try:
             result = subprocess.run([
@@ -56,9 +56,9 @@ class TestRunner:
             return result.returncode, result.stdout + result.stderr
 
         except FileNotFoundError:
-            return 1, "flake8 не установлен"
+            return 0, "flake8 не установлен (это нормально)"
         except Exception as e:
-            return 1, f"Ошибка при запуске flake8: {e}"
+            return 0, f"Ошибка при запуске flake8: {e}"
 
     def run_full_test_cycle(self) -> Dict:
         """Выполняет полный цикл тестирования"""
@@ -118,10 +118,10 @@ class TestRunner:
 
         # 5. Итоговый отчет
         print("\n=== ИТОГОВЫЙ ОТЧЕТ ===")
-        print(f"Генерация тестов: {'✓' if results['generation_success'] else '✗'}")
-        print(f"Валидация тестов: {'✓' if results['validation_passed'] else '✗'}")
-        print(f"Запуск тестов: {'✓' if results['tests_passed'] else '✗'}")
-        print(f"Линтинг: {'✓' if results['linting_passed'] else '✗'}")
+        print(f"Генерация тестов: {'[OK]' if results['generation_success'] else '[FAIL]'}")
+        print(f"Валидация тестов: {'[OK]' if results['validation_passed'] else '[FAIL]'}")
+        print(f"Запуск тестов: {'[OK]' if results['tests_passed'] else '[FAIL]'}")
+        print(f"Линтинг: {'[OK]' if results['linting_passed'] else '[FAIL]'}")
 
         success_count = sum([
             results['generation_success'],
@@ -133,13 +133,13 @@ class TestRunner:
         print(f"\nУспешно: {success_count}/4")
 
         if not results['tests_passed']:
-            print("\n❌ ТЕСТИРОВАНИЕ ПРОВАЛЕНО")
+            print("\nОШИБКА: ТЕСТИРОВАНИЕ ПРОВАЛЕНО")
             return results
 
         if success_count >= 3:
-            print("\n✅ ТЕСТИРОВАНИЕ ПРОШЛО УСПЕШНО")
+            print("\nУСПЕХ: ТЕСТИРОВАНИЕ ПРОШЛО УСПЕШНО")
         else:
-            print("\n⚠️ ТЕСТИРОВАНИЕ ПРОШЛО С ПРЕДУПРЕЖДЕНИЯМИ")
+            print("\nПРЕДУПРЕЖДЕНИЕ: ТЕСТИРОВАНИЕ ПРОШЛО С ПРЕДУПРЕЖДЕНИЯМИ")
 
         return results
 

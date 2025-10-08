@@ -8,7 +8,7 @@
     "auto_generate": true,
     "validate_existing_tests": true,
     "run_tests_after_generation": true,
-    "api_model": "deepseek/deepseek-chat-v3.1:free",
+    "api_model": "meta-llama/llama-3.1-8b-instruct:free",
     "max_tokens": 2000,
     "temperature": 0
   }

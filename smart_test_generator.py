@@ -122,7 +122,7 @@ class SmartTestGenerator:
         }
 
         data = {
-            "model": self.config.get('settings', {}).get('api_model', 'deepseek/deepseek-chat-v3.1:free'),
+            "model": self.config.get('settings', {}).get('api_model', 'meta-llama/llama-3.1-8b-instruct:free'),
             "messages": [{"role": "user", "content": prompt}],
             "temperature": self.config.get('settings', {}).get('temperature', 0),
             "max_tokens": self.config.get('settings', {}).get('max_tokens', 2000),

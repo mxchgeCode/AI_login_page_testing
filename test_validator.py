@@ -90,7 +90,11 @@ class TestValidator:
         app_file = self.config.get('app_file', 'app.py')
         tests_file = self.config.get('tests_file', 'test_generated.py')
 
-        if not os.path.exists(app_file) or not os.path.exists(tests_file):
+        if not os.path.exists(app_file):
+            return {}
+
+        if not os.path.exists(tests_file):
+            print(f"Файл тестов не найден: {tests_file}")
             return {}
 
         # Получаем функции из основного кода
@@ -98,6 +102,10 @@ class TestValidator:
 
         # Получаем тестовые функции и их покрытие
         test_functions = self.extract_test_functions_from_file(tests_file)
+
+        if not test_functions:
+            print("В файле тестов не найдены тестовые функции")
+            return {}
 
         validation_results = {}
 
