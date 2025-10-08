@@ -1,0 +1,119 @@
+name: Auto Test Generation and Execution
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - 'app.py'
+      - 'generate_tests.py'
+      - 'smart_test_generator.py'
+      - 'test_validator.py'
+      - 'code_tracker.py'
+      - 'test_runner.py'
+      - 'requirements.txt'
+
+jobs:
+  test-generation:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-pip python3-venv
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests pytest flake8 playwright
+        playwright install chromium
+
+    - name: Set up environment
+      run: |
+        echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> $GITHUB_ENV
+
+    - name: Check for changes in app.py
+      id: check-changes
+      run: |
+        echo "Checking if app.py has changed..."
+        if git diff --quiet HEAD~1 HEAD -- app.py; then
+          echo "No changes in app.py"
+          echo "changed=false" >> $GITHUB_OUTPUT
+        else
+          echo "Changes detected in app.py"
+          echo "changed=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Generate and validate tests
+      if: steps.check-changes.outputs.changed == 'true'
+      run: |
+        echo "Running smart test generation..."
+        python smart_test_generator.py
+
+    - name: Run all tests
+      run: |
+        echo "Running test suite..."
+        python test_runner.py
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: |
+          test_generated.py
+          test_config.json
+          app_hash.txt
+        retention-days: 7
+
+    - name: Comment PR with test results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+
+          let comment = '## Test Results\n\n';
+
+          // Check if test_generated.py exists and read it
+          try {
+            if (fs.existsSync('test_generated.py')) {
+              const testContent = fs.readFileSync('test_generated.py', 'utf8');
+              const testCount = (testContent.match(/def test_/g) || []).length;
+              comment += `✅ Generated/Updated ${testCount} tests\n`;
+            } else {
+              comment += `⚠️ No tests were generated\n`;
+            }
+          } catch (error) {
+            comment += `❌ Error reading test file: ${error.message}\n`;
+          }
+
+          // Try to read test output from a potential log file
+          try {
+            if (fs.existsSync('pytest_output.log')) {
+              const output = fs.readFileSync('pytest_output.log', 'utf8');
+              comment += '\n<details><summary>Test Output</summary>\n\n';
+              comment += '```\n' + output + '\n```\n';
+              comment += '</details>\n';
+            }
+          } catch (error) {
+            console.log('No test output file found');
+          }
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
