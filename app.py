@@ -61,7 +61,9 @@ def test_negative_username():
             # Проверить, что текст сообщения об ошибке "Your username is invalid!"
             error_text = error_element.text_content()
             print(f"Error message: {error_text}")
-            assert "Your username is invalid!" in error_text, f"Expected error message not found. Actual: {error_text}"
+            assert (
+                "Your username is invalid!" in error_text
+            ), f"Expected error message not found. Actual: {error_text}"
 
         finally:
             browser.close()
@@ -107,7 +109,9 @@ def test_negative_password():
             error_text = error_element.text_content()
             print(f"Error message: {error_text}")
 
-            assert "Your password is invalid!" in error_text, f"Expected error message not found. Actual: {error_text}"
+            assert (
+                "Your password is invalid!" in error_text
+            ), f"Expected error message not found. Actual: {error_text}"
 
         finally:
             browser.close()
