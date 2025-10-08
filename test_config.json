@@ -8,7 +8,7 @@
     "auto_generate": true,
     "validate_existing_tests": true,
     "run_tests_after_generation": true,
-    "api_model": "deepseek/deepseek-chat:free",
+    "api_model": "qwen/qwen3-coder:free",
     "max_tokens": 2000,
     "temperature": 0
   }
