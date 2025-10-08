@@ -17,11 +17,8 @@ def test_login():
             page.fill('input[name="username"]', "student")
             page.fill('input[name="password"]', "Password123")
             page.click("#submit")
-
             page.wait_for_load_state("networkidle")
-
             print("Current URL after login:", page.url)
-
             assert "logged-in-successfully" in page.url or "logged-in" in page.url
 
         finally:

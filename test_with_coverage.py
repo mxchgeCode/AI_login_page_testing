@@ -43,23 +43,31 @@ def run_tests_with_coverage():
             print("Генерируем отчеты покрытия...")
 
             # HTML отчет
-            subprocess.run(["coverage", "html", "-d", "coverage_html"])
+            html_result = subprocess.run(["coverage", "html", "-d", "coverage_html"], capture_output=True, text=True)
 
             # XML отчет для CI/CD
-            subprocess.run(["coverage", "xml", "-o", "coverage.xml"])
+            xml_result = subprocess.run(["coverage", "xml", "-o", "coverage.xml"], capture_output=True, text=True)
 
             # JSON отчет
-            subprocess.run(["coverage", "json", "-o", "coverage.json"])
+            json_result = subprocess.run(["coverage", "json", "-o", "coverage.json"], capture_output=True, text=True)
 
             # Подробный текстовый отчет
             print("\nПодробный отчет покрытия:")
-            subprocess.run(["coverage", "report", "-m"])
+            report_result = subprocess.run(["coverage", "report", "-m"], capture_output=True, text=True)
 
-            print("\nОтчеты сохранены:")
-            print("   coverage_html/ - HTML отчет (откройте index.html в браузере)")
-            print("   coverage.xml - XML отчет для CI/CD")
-            print("   coverage.json - JSON отчет")
-            print("   .coverage - данные покрытия")
+            # Проверяем, были ли ошибки
+            if html_result.returncode == 0 and xml_result.returncode == 0:
+                print("\nОтчеты сохранены:")
+                print("   coverage_html/ - HTML отчет (откройте index.html в браузере)")
+                print("   coverage.xml - XML отчет для CI/CD")
+                print("   coverage.json - JSON отчет")
+                print("   .coverage - данные покрытия")
+            else:
+                print("\nПредупреждение: Некоторые отчеты не удалось сгенерировать")
+                if html_result.returncode != 0:
+                    print(f"   HTML отчет: {html_result.stderr}")
+                if xml_result.returncode != 0:
+                    print(f"   XML отчет: {xml_result.stderr}")
 
             return True
         else:

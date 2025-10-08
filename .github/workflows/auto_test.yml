@@ -69,10 +69,20 @@ jobs:
     - name: Generate coverage reports
       run: |
         echo "Generating coverage reports..."
-        coverage html -d coverage_html || echo "HTML report generation failed"
-        coverage xml -o coverage.xml || echo "XML report generation failed"
-        coverage report -m > coverage.txt || echo "Text report generation failed"
-        coverage json -o coverage.json || echo "JSON report generation failed"
+        if [ -f ".coverage" ]; then
+          echo "Coverage data found, generating reports..."
+          coverage html -d coverage_html || echo "HTML report generation failed"
+          coverage xml -o coverage.xml || echo "XML report generation failed"
+          coverage report -m > coverage.txt || echo "Text report generation failed"
+          coverage json -o coverage.json || echo "JSON report generation failed"
+        else
+          echo "No coverage data found, creating empty reports..."
+          echo "No data to report" > coverage.txt
+          echo "<coverage><sources><source>.</source></sources><packages><package><classes><class><methods><method><lines><line><hits><hit></hit></hits></line></lines></method></methods></class></classes></package></packages></coverage>" > coverage.xml
+          echo '{"coverage": null, "no_data": true}' > coverage.json
+          mkdir -p coverage_html
+          echo "<html><body><h1>No Coverage Data</h1><p>Coverage data was not collected during test execution.</p></body></html>" > coverage_html/index.html
+        fi
 
     - name: Run all tests (legacy)
       run: |
