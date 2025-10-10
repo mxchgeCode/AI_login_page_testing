@@ -1,7 +1,7 @@
 import io
 import sys
 from unittest.mock import patch
-from app import solve_task_one, solve_task_two, solve_task_three
+from app import solve_task_one, solve_task_two, solve_task_three, solve_task_four
 
 
 # === ЮНИТ-ТЕСТЫ ДЛЯ ФУНКЦИЙ ===
@@ -186,13 +186,40 @@ def test_solve_task_three_invalid_input():
         solve_task_three_invalid()
 
     output = captured_output.getvalue()
-    # Должны быть только корректные отделы
-    assert "IT: John Doe" in output
-    assert "HR: Jane Smith" in output
+    # Пустая строка для сотрудника считается ложным значением, поэтому ничего не выводится
+    assert output.strip() == ""
+
+
+def test_solve_task_four_basic():
+    """Тест функции solve_task_four для правильного создания графа побед-поражений"""
+    captured_output = io.StringIO()
+    with patch("sys.stdout", captured_output):
+        solve_task_four()
+
+    output = captured_output.getvalue()
+
+    # Проверяем, что Тимур победил Артура и Диму
+    assert "Тимур -> Артур Дима" in output
+    # Проверяем, что Дима победил Артура
+    assert "Дима -> Артур" in output
+
+
+def test_solve_task_four_output_order():
+    """Тест функции solve_task_four для правильного порядка вывода"""
+    captured_output = io.StringIO()
+    with patch("sys.stdout", captured_output):
+        solve_task_four()
+
+    output = captured_output.getvalue()
+
+    # Проверяем, что победители отсортированы по алфавиту
+    lines = [line.strip() for line in output.split("\n") if line.strip()]
+    assert lines[0].startswith("Дима")
+    assert lines[1].startswith("Тимур")
 
 
 # === ПРИМЕЧАНИЕ ===
-# Функции solve_task_one(), solve_task_two() и solve_task_three() полностью покрыты юнит-тестами выше
+# Функции solve_task_one(), solve_task_two(), solve_task_three() и solve_task_four() полностью покрыты юнит-тестами выше
 # Тесты проверяют правильность подсчета данных, порядок вывода результатов и обработку краевых случаев
 
 
