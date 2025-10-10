@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import io
-import sys
 from unittest.mock import patch
 from app import solve_task_one, solve_task_two
+
 
 def test_solve_task_one_books_total():
     """Тест функции solve_task_one для правильного подсчета прибыли Books"""
     captured_output = io.StringIO()
-    with patch('sys.stdout', captured_output):
+    with patch("sys.stdout", captured_output):
         solve_task_one()
 
     output = captured_output.getvalue()
@@ -21,10 +21,11 @@ def test_solve_task_one_books_total():
         print(f"Expected 'Books: $7969' in output, got: {output}")
         return False
 
+
 def test_solve_task_one_courses_total():
     """Тест функции solve_task_one для правильного подсчета прибыли Courses"""
     captured_output = io.StringIO()
-    with patch('sys.stdout', captured_output):
+    with patch("sys.stdout", captured_output):
         solve_task_one()
 
     output = captured_output.getvalue()
@@ -38,22 +39,29 @@ def test_solve_task_one_courses_total():
         print(f"Expected 'Courses: $2991' in output, got: {output}")
         return False
 
+
 def test_solve_task_two_departments_count():
     """Тест функции solve_task_two для правильного подсчета сотрудников по отделам"""
     captured_output = io.StringIO()
-    with patch('sys.stdout', captured_output):
+    with patch("sys.stdout", captured_output):
         solve_task_two()
 
     output = captured_output.getvalue()
 
     # Проверяем правильность подсчета сотрудников по отделам
-    if "Accounting: 17" in output and "Developing: 7" in output and "Marketing: 13" in output and "Sales: 13" in output:
+    if (
+        "Accounting: 17" in output
+        and "Developing: 7" in output
+        and "Marketing: 13" in output
+        and "Sales: 13" in output
+    ):
         print("✓ test_solve_task_two_departments_count passed")
         return True
     else:
         print("✗ test_solve_task_two_departments_count failed")
         print(f"Expected all department counts in output, got: {output}")
         return False
+
 
 def run_all_tests():
     """Запуск всех тестов"""
@@ -73,6 +81,7 @@ def run_all_tests():
 
     print(f"\nРезультаты: {passed}/{total} тестов прошли")
     return passed == total
+
 
 if __name__ == "__main__":
     success = run_all_tests()

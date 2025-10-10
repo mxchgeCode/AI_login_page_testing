@@ -1,16 +1,15 @@
-import pytest
 import io
-import sys
 from unittest.mock import patch
 from app import solve_task_one, solve_task_two
 
 
 # === ЮНИТ-ТЕСТЫ ДЛЯ ФУНКЦИЙ ===
 
+
 def test_solve_task_one_books_total():
     """Тест функции solve_task_one для правильного подсчета прибыли Books"""
     captured_output = io.StringIO()
-    with patch('sys.stdout', captured_output):
+    with patch("sys.stdout", captured_output):
         solve_task_one()
 
     output = captured_output.getvalue()
@@ -22,7 +21,7 @@ def test_solve_task_one_books_total():
 def test_solve_task_one_courses_total():
     """Тест функции solve_task_one для правильного подсчета прибыли Courses"""
     captured_output = io.StringIO()
-    with patch('sys.stdout', captured_output):
+    with patch("sys.stdout", captured_output):
         solve_task_one()
 
     output = captured_output.getvalue()
@@ -34,7 +33,7 @@ def test_solve_task_one_courses_total():
 def test_solve_task_one_merch_total():
     """Тест функции solve_task_one для правильного подсчета прибыли Merch"""
     captured_output = io.StringIO()
-    with patch('sys.stdout', captured_output):
+    with patch("sys.stdout", captured_output):
         solve_task_one()
 
     output = captured_output.getvalue()
@@ -46,7 +45,7 @@ def test_solve_task_one_merch_total():
 def test_solve_task_one_tutorials_total():
     """Тест функции solve_task_one для правильного подсчета прибыли Tutorials"""
     captured_output = io.StringIO()
-    with patch('sys.stdout', captured_output):
+    with patch("sys.stdout", captured_output):
         solve_task_one()
 
     output = captured_output.getvalue()
@@ -58,7 +57,7 @@ def test_solve_task_one_tutorials_total():
 def test_solve_task_two_departments_count():
     """Тест функции solve_task_two для правильного подсчета сотрудников по отделам"""
     captured_output = io.StringIO()
-    with patch('sys.stdout', captured_output):
+    with patch("sys.stdout", captured_output):
         solve_task_two()
 
     output = captured_output.getvalue()
@@ -73,13 +72,15 @@ def test_solve_task_two_departments_count():
 def test_solve_task_one_output_order():
     """Тест функции solve_task_one для правильного порядка вывода"""
     captured_output = io.StringIO()
-    with patch('sys.stdout', captured_output):
+    with patch("sys.stdout", captured_output):
         solve_task_one()
 
     output = captured_output.getvalue()
 
     # Проверяем, что вывод отсортирован по алфавиту
-    lines = [line.strip() for line in output.split('\n') if line.strip() and '$' in line]
+    lines = [
+        line.strip() for line in output.split("\n") if line.strip() and "$" in line
+    ]
     assert lines[0] == "Books: $7969"
     assert lines[1] == "Courses: $2991"
     assert lines[2] == "Merch: $4083"
@@ -89,13 +90,15 @@ def test_solve_task_one_output_order():
 def test_solve_task_two_output_order():
     """Тест функции solve_task_two для правильного порядка вывода отделов"""
     captured_output = io.StringIO()
-    with patch('sys.stdout', captured_output):
+    with patch("sys.stdout", captured_output):
         solve_task_two()
 
     output = captured_output.getvalue()
 
     # Проверяем, что отделы отсортированы по алфавиту
-    lines = [line.strip() for line in output.split('\n') if line.strip() and ':' in line]
+    lines = [
+        line.strip() for line in output.split("\n") if line.strip() and ":" in line
+    ]
     assert lines[0] == "Accounting: 17"
     assert lines[1] == "Developing: 7"
     assert lines[2] == "Marketing: 13"
