@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import io
 from unittest.mock import patch
-from app import solve_task_one, solve_task_two
+from app import solve_task_one, solve_task_two, solve_task_three
 
 
 def test_solve_task_one_books_total():
@@ -63,6 +63,24 @@ def test_solve_task_two_departments_count():
         return False
 
 
+def test_solve_task_three_unique_employees():
+    """Тест функции solve_task_three для правильного создания уникального списка сотрудников"""
+    captured_output = io.StringIO()
+    with patch('sys.stdout', captured_output):
+        solve_task_three()
+
+    output = captured_output.getvalue()
+
+    # Проверяем, что в выводе есть все отделы
+    if "Accounting:" in output and "Developing:" in output and "Marketing:" in output and "Sales:" in output:
+        print("✓ test_solve_task_three_unique_employees passed")
+        return True
+    else:
+        print("✗ test_solve_task_three_unique_employees failed")
+        print(f"Expected all departments in output, got: {output}")
+        return False
+
+
 def run_all_tests():
     """Запуск всех тестов"""
     print("Запуск тестов...")
@@ -70,6 +88,7 @@ def run_all_tests():
         test_solve_task_one_books_total,
         test_solve_task_one_courses_total,
         test_solve_task_two_departments_count,
+        test_solve_task_three_unique_employees,
     ]
 
     passed = 0

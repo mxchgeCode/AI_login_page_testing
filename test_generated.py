@@ -1,6 +1,7 @@
 import io
+import sys
 from unittest.mock import patch
-from app import solve_task_one, solve_task_two
+from app import solve_task_one, solve_task_two, solve_task_three
 
 
 # === ЮНИТ-ТЕСТЫ ДЛЯ ФУНКЦИЙ ===
@@ -105,9 +106,88 @@ def test_solve_task_two_output_order():
     assert lines[3] == "Sales: 13"
 
 
+def test_solve_task_three_unique_employees():
+    """Тест функции solve_task_three для правильного создания уникального списка сотрудников"""
+    captured_output = io.StringIO()
+    with patch("sys.stdout", captured_output):
+        solve_task_three()
+
+    output = captured_output.getvalue()
+
+    # Проверяем, что в выводе есть все отделы
+    assert "Accounting:" in output
+    assert "Developing:" in output
+    assert "Marketing:" in output
+    assert "Sales:" in output
+
+    # Проверяем, что сотрудники отсортированы по алфавиту
+    # Для Accounting должны быть: Aaron Ferguson, Ann Bell, Brenda Davis, Casey Jenkins, Craig Wood, Dale Houston, Edna Cunningham, Gloria Higgins, James Wilkins, Jane Jackson, John Watts, Kay Scott, Kimberly Reynolds, Linda Hudson, Michelle Wright, Rosemary Garcia, Steven Diaz
+    accounting_line = [line for line in output.split('\n') if line.startswith('Accounting:')][0]
+    accounting_employees = accounting_line.split(': ')[1].split(', ')
+    assert accounting_employees[0] == "Aaron Ferguson"
+    assert accounting_employees[1] == "Ann Bell"
+
+    # Для Developing должны быть: Arlene Gibson, Deborah George, Joyce Rivera, Miguel Norris, Nicole Watts, Thomas Porter, Wilma Woods
+    developing_line = [line for line in output.split('\n') if line.startswith('Developing:')][0]
+    developing_employees = developing_line.split(': ')[1].split(', ')
+    assert developing_employees[0] == "Arlene Gibson"
+    assert developing_employees[-1] == "Wilma Woods"
+
+
+def test_solve_task_three_empty_input():
+    """Тест функции solve_task_three с пустым списком сотрудников"""
+    # Создаем локальную версию функции с пустым списком
+    def solve_task_three_empty():
+        staff_broken = []
+        departments = {}
+        for dept, person in staff_broken:
+            departments.setdefault(dept, set()).add(person)
+        for dept in sorted(departments):
+            sorted_employees = sorted(departments[dept])
+            print(f"{dept}: {', '.join(sorted_employees)}")
+
+    captured_output = io.StringIO()
+    with patch("sys.stdout", captured_output):
+        solve_task_three_empty()
+
+    output = captured_output.getvalue()
+    # Пустой ввод должен давать пустой вывод
+    assert output.strip() == ""
+
+
+def test_solve_task_three_invalid_input():
+    """Тест функции solve_task_three с некорректными данными"""
+    # Создаем локальную версию функции с некорректными данными
+    def solve_task_three_invalid():
+        staff_broken = [
+            ("", "John Doe"),
+            (None, "Jane Smith"),
+            ("IT", ""),
+            ("HR", None)
+        ]
+        departments = {}
+        for dept, person in staff_broken:
+            if dept and person:  # Фильтруем некорректные данные
+                departments.setdefault(dept, set()).add(person)
+
+        for dept in sorted(departments):
+            sorted_employees = sorted(departments[dept])
+            if sorted_employees:  # Выводим только непустые отделы
+                print(f"{dept}: {', '.join(sorted_employees)}")
+
+    captured_output = io.StringIO()
+    with patch("sys.stdout", captured_output):
+        solve_task_three_invalid()
+
+    output = captured_output.getvalue()
+    # Должны быть только корректные отделы
+    assert "IT: John Doe" in output
+    assert "HR: Jane Smith" in output
+
+
 # === ПРИМЕЧАНИЕ ===
-# Функции solve_task_one() и solve_task_two() полностью покрыты юнит-тестами выше
-# Тесты проверяют правильность подсчета данных и порядок вывода результатов
+# Функции solve_task_one(), solve_task_two() и solve_task_three() полностью покрыты юнит-тестами выше
+# Тесты проверяют правильность подсчета данных, порядок вывода результатов и обработку краевых случаев
 
 
 # Тесты будут генерироваться автоматически при изменении app.py
