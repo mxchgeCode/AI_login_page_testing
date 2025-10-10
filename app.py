@@ -182,9 +182,22 @@ def solve_task_three():
         print(f"{dept}: {', '.join(sorted_employees)}")
 
 
+def solve_task_four():
+    pairs = [("Тимур", "Артур"), ("Тимур", "Дима"), ("Дима", "Артур")]
+
+    result = {}
+    for winner, loser in pairs:
+        result.setdefault(winner, set()).add(loser)
+
+    for winner, losers in sorted(result.items()):
+        print(winner, "->", *sorted(losers))
+
+
 print("\n * solve_task_one:")
 solve_task_one()
 print("\n * solve_task_two:")
 solve_task_two()
 print("\n * solve_task_three:")
 solve_task_three()
+print("\n * solve_task_four:")
+solve_task_four()

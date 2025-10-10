@@ -122,20 +122,25 @@ def test_solve_task_three_unique_employees():
 
     # Проверяем, что сотрудники отсортированы по алфавиту
     # Для Accounting должны быть: Aaron Ferguson, Ann Bell, Brenda Davis, Casey Jenkins, Craig Wood, Dale Houston, Edna Cunningham, Gloria Higgins, James Wilkins, Jane Jackson, John Watts, Kay Scott, Kimberly Reynolds, Linda Hudson, Michelle Wright, Rosemary Garcia, Steven Diaz
-    accounting_line = [line for line in output.split('\n') if line.startswith('Accounting:')][0]
-    accounting_employees = accounting_line.split(': ')[1].split(', ')
+    accounting_line = [
+        line for line in output.split("\n") if line.startswith("Accounting:")
+    ][0]
+    accounting_employees = accounting_line.split(": ")[1].split(", ")
     assert accounting_employees[0] == "Aaron Ferguson"
     assert accounting_employees[1] == "Ann Bell"
 
     # Для Developing должны быть: Arlene Gibson, Deborah George, Joyce Rivera, Miguel Norris, Nicole Watts, Thomas Porter, Wilma Woods
-    developing_line = [line for line in output.split('\n') if line.startswith('Developing:')][0]
-    developing_employees = developing_line.split(': ')[1].split(', ')
+    developing_line = [
+        line for line in output.split("\n") if line.startswith("Developing:")
+    ][0]
+    developing_employees = developing_line.split(": ")[1].split(", ")
     assert developing_employees[0] == "Arlene Gibson"
     assert developing_employees[-1] == "Wilma Woods"
 
 
 def test_solve_task_three_empty_input():
     """Тест функции solve_task_three с пустым списком сотрудников"""
+
     # Создаем локальную версию функции с пустым списком
     def solve_task_three_empty():
         staff_broken = []
@@ -157,13 +162,14 @@ def test_solve_task_three_empty_input():
 
 def test_solve_task_three_invalid_input():
     """Тест функции solve_task_three с некорректными данными"""
+
     # Создаем локальную версию функции с некорректными данными
     def solve_task_three_invalid():
         staff_broken = [
             ("", "John Doe"),
             (None, "Jane Smith"),
             ("IT", ""),
-            ("HR", None)
+            ("HR", None),
         ]
         departments = {}
         for dept, person in staff_broken:

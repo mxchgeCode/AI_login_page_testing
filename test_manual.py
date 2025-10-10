@@ -66,13 +66,18 @@ def test_solve_task_two_departments_count():
 def test_solve_task_three_unique_employees():
     """Тест функции solve_task_three для правильного создания уникального списка сотрудников"""
     captured_output = io.StringIO()
-    with patch('sys.stdout', captured_output):
+    with patch("sys.stdout", captured_output):
         solve_task_three()
 
     output = captured_output.getvalue()
 
     # Проверяем, что в выводе есть все отделы
-    if "Accounting:" in output and "Developing:" in output and "Marketing:" in output and "Sales:" in output:
+    if (
+        "Accounting:" in output
+        and "Developing:" in output
+        and "Marketing:" in output
+        and "Sales:" in output
+    ):
         print("✓ test_solve_task_three_unique_employees passed")
         return True
     else:
