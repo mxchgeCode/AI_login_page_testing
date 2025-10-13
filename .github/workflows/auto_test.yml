@@ -63,6 +63,7 @@ jobs:
         echo "Running tests with coverage..."
         coverage run -m pytest test_generated.py -v --cov=app --cov-report=term
         echo "COVERAGE_EXIT_CODE=$?" >> $GITHUB_ENV
+        echo "Coverage data collected successfully"
 
     - name: Generate coverage reports
       run: |
@@ -108,7 +109,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results-coverage
+        name: auto-test-results
         path: |
           test_generated.py
           test_config.json

@@ -106,7 +106,14 @@ class SmartTestGenerator:
 
         The code resides in the module named 'app'. Write ONLY Python code, no explanations or markdown.
 
-        Tests should import necessary functions from 'app' module and use mocking where needed.
+        IMPORTANT: Use pytest best practices, not unittest:
+        - Use pytest fixtures (capsys, tmp_path, etc.) instead of unittest.mock.patch where possible
+        - Use assert statements directly, not self.assertEqual()
+        - Use descriptive test function names starting with 'test_'
+        - For output capture, prefer capsys fixture over patch('sys.stdout')
+        - Use pytest.raises() for exception testing instead of self.assertRaises()
+
+        Tests should import necessary functions from 'app' module and use mocking only when necessary.
 
         Here is the full code context:
 
@@ -239,7 +246,7 @@ class SmartTestGenerator:
         if success:
             print("Цикл генерации тестов завершен успешно")
         else:
-            print("Цикл генерации тестов завершен с ошибками")
+            print("Цикл генерации тестов завершен без изменений в тестах")
 
         return success
 

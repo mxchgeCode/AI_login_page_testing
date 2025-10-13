@@ -191,6 +191,16 @@ def solve_task_four():
         print(winner, "->", *sorted(losers))
 
 
+import random
+
+
+def solve_ternary_operator():
+    a = random.uniform(0, 100)
+    b = random.uniform(0, 100)
+    d = a if a > b else b
+    print(d)
+
+
 print("\n * solve_task_one:")
 solve_task_one()
 print("\n * solve_task_two:")
@@ -199,3 +209,5 @@ print("\n * solve_task_three:")
 solve_task_three()
 print("\n * solve_task_four:")
 solve_task_four()
+print("\n * solve_ternar_operator:")
+solve_ternary_operator()
