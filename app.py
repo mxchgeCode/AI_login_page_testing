@@ -173,7 +173,6 @@ def solve_task_three():
     ]
 
     departments = {}
-
     for dept, person in staff_broken:
         departments.setdefault(dept, set()).add(person)
     for dept in sorted(departments):

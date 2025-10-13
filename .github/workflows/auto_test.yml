@@ -1,15 +1,15 @@
 name: Auto Test Generation and Execution
 
 on:
-  push:
-    branches: [ main, master, develop ]
-    paths:
-      - 'app.py'
-      - 'smart_test_generator.py'
-      - 'test_validator.py'
-      - 'code_tracker.py'
-      - 'test_runner.py'
-      - 'requirements.txt'
+ push:
+   branches: [ main, master, develop ]
+   paths:
+     - 'app.py'
+     - 'smart_test_generator.py'
+     - 'test_validator.py'
+     - 'code_tracker.py'
+     - 'test_runner.py'
+     - 'requirements.txt'
 
 jobs:
   test-generation:
@@ -140,9 +140,9 @@ jobs:
         else
           git commit -m "🤖 Auto-generate tests for new functions
 
-  - Generated tests for new functions in app.py
-  - Updated test coverage and configuration
-  - Triggered by changes in app.py"
+          Generated tests for new functions in app.py
+          Updated test coverage and configuration
+          Triggered by changes in app.py"
 
           # Push изменения обратно в репозиторий
           git push origin ${{ github.ref_name }}
