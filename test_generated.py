@@ -202,3 +202,21 @@ def test_solve_ternary_operator_basic(capsys):
         float(output)
     except ValueError:
         assert False, f"Вывод должен быть числом, получено: {output}"
+
+
+def test_solve_multiplicity_basic(capsys):
+    """Тест функции solve_multiplicity для проверки работы условия кратности"""
+    solve_multiplicity()
+    captured = capsys.readouterr()
+
+    # Проверяем, что функция выводит число и сообщение
+    output = captured.out.strip()
+    assert output != "", "Функция должна выводить результат"
+
+    # Проверяем, что вывод содержит число и сообщение о кратности
+    parts = output.split()
+    assert len(parts) >= 2, "Вывод должен содержать число и сообщение"
+
+    # Проверяем последние две части (сообщение может содержать пробел)
+    last_two_parts = " ".join(parts[-2:])
+    assert last_two_parts in ["кратно 3", "не кратно 3"], f"Сообщение должно быть о кратности 3, получено: {last_two_parts}"

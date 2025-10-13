@@ -201,7 +201,6 @@ def solve_task_four():
 
 import random
 
-
 def solve_ternary_operator():
     a = random.uniform(0, 100)
     b = random.uniform(0, 100)
