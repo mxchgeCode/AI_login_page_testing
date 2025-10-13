@@ -219,4 +219,7 @@ def test_solve_multiplicity_basic(capsys):
 
     # Проверяем последние две части (сообщение может содержать пробел)
     last_two_parts = " ".join(parts[-2:])
-    assert last_two_parts in ["кратно 3", "не кратно 3"], f"Сообщение должно быть о кратности 3, получено: {last_two_parts}"
+    assert last_two_parts in [
+        "кратно 3",
+        "не кратно 3",
+    ], f"Сообщение должно быть о кратности 3, получено: {last_two_parts}"

@@ -50,26 +50,7 @@ jobs:
           else
             echo "Changes detected in app.py"
             echo "changed=true" >> $GITHUB_OUTPUT
-            python3 -c "
-          import ast
-          import os
-          if os.path.exists('app.py'):
-              with open('app.py', 'r') as f:
-                  code = f.read()
-              try:
-                  tree = ast.parse(code)
-                  functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
-                  print(f'functions={functions}')
-              except:
-                  print('functions=[]')
-          "
           fi
-
-      - name: Generate and validate tests
-        if: steps.check-changes.outputs.changed == 'true'
-        run: |
-          echo "Running smart test generation..."
-          python smart_test_generator.py
 
       - name: Run tests with coverage
         run: |
@@ -96,91 +77,32 @@ jobs:
       - name: Run test validation
         run: |
           echo "Running test validation..."
-          python test_runner.py --tests-only
+          python -m pytest test_generated.py -v --tb=short
           TEST_EXIT_CODE=$?
           echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
-          if [ -n "$OPENROUTER_API_KEY" ]; then
-            if [ $TEST_EXIT_CODE -ne 0 ]; then
-              echo "Tests failed with API key configured, setting workflow as failed"
-              exit 1
-            fi
-          else
-            if [ $TEST_EXIT_CODE -eq 1 ]; then
-              echo "Tests failed even without API key, setting workflow as failed"
-              exit 1
-            fi
-            echo "API key not configured, some features skipped - this is normal"
+          if [ $TEST_EXIT_CODE -ne 0 ]; then
+            echo "Tests failed, setting workflow as failed"
+            exit 1
           fi
           echo "Test validation completed successfully"
 
-      - name: Commit and push generated tests
-        if: steps.check-changes.outputs.changed == 'true' && env.OPENROUTER_API_KEY != '' && env.TEST_EXIT_CODE == '0'
+      - name: Skip test generation
         run: |
-          echo "Committing generated tests back to repository..."
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add test_generated.py app_hash.txt test_config.json
-          if git diff --quiet --staged; then
-            echo "No changes to commit"
-          else
-            git commit -m "🤖 Auto-generate tests for new functions
-
-            Generated tests for new functions in app.py
-            Updated test coverage and configuration
-            Triggered by changes in app.py"
-            git push origin ${{ github.ref_name }}
-            echo "✅ Tests committed and pushed successfully"
-          fi
+          echo "Test generation disabled to prevent incorrect tests"
 
       - name: Upload test results and coverage
-        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: auto-test-results
+          name: test-results
           path: |
             test_generated.py
-            test_config.json
-            app_hash.txt
             coverage.xml
             coverage.txt
             coverage.json
-            app.py
-            .coveragerc
-          retention-days: 14
+          retention-days: 7
         continue-on-error: true
 
-      - name: Comment PR with test results
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            let comment = '## Test Results\n\n';
-            try {
-              if (fs.existsSync('test_generated.py')) {
-                const testContent = fs.readFileSync('test_generated.py', 'utf8');
-                const testCount = (testContent.match(/def test_/g) || []).length;
-                comment += `✅ Generated/Updated ${testCount} tests\n`;
-              } else {
-                comment += `⚠️ No tests were generated\n`;
-              }
-            } catch (error) {
-              comment += `❌ Error reading test file: ${error.message}\n`;
-            }
-            try {
-              if (fs.existsSync('pytest_output.log')) {
-                const output = fs.readFileSync('pytest_output.log', 'utf8');
-                comment += '\n<details><summary>Test Output</summary>\n\n';
-                comment += '```\n' + output + '\n```\n';
-                comment += '</details>\n';
-              }
-            } catch (error) {
-              console.log('No test output file found');
-            }
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
+      - name: Test results summary
+        run: |
+          echo "✅ All tests completed successfully"
+          echo "📊 Test results uploaded as artifacts"

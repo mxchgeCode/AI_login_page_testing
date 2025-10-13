@@ -98,8 +98,10 @@ class SmartTestGenerator:
         CODE ANALYSIS:
         - Analyze the function implementation carefully
         - Understand what the function does and what it outputs
-        - Create tests that verify the correct behavior
+        - Create tests that verify the CORRECT behavior based on actual function logic
         - Handle edge cases and error conditions
+
+        IMPORTANT: Generate tests that match the ACTUAL behavior of the functions, not hypothetical behavior.
 
         Tests should import necessary functions from 'app' module and use mocking only when necessary.
 

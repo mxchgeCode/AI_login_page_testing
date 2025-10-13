@@ -83,7 +83,7 @@ def solve_task_two():
         ("Sales", "John White"),
         ("Marketing", "Charles Bailey"),
         ("Sales", "Chester Fernandez"),
-        ("Sales", "John Washington")
+        ("Sales", "John Washington"),
     ]
 
     departments = {}
@@ -95,6 +95,7 @@ def solve_task_two():
 
     for dept in sorted(departments.keys()):
         print(f"{dept}: {departments[dept]}")
+
 
 def solve_task_three():
     staff_broken = [
@@ -200,6 +201,7 @@ def solve_task_four():
 
 
 import random
+
 
 def solve_ternary_operator():
     a = random.uniform(0, 100)
