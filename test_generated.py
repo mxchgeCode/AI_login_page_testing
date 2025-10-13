@@ -109,6 +109,8 @@ def test_solve_task_three_unique_employees(capsys):
     accounting_employees = accounting_line.split(": ")[1].split(", ")
     assert accounting_employees[0] == "Aaron Ferguson"
     assert accounting_employees[1] == "Ann Bell"
+    assert "Gloria Higgins" in accounting_employees
+    assert "Steven Diaz" in accounting_employees
 
     developing_line = [
         line for line in captured.out.split("\n") if line.startswith("Developing:")
@@ -169,10 +171,10 @@ def test_solve_task_four_basic(capsys):
     solve_task_four()
     captured = capsys.readouterr()
 
-    # Проверяем, что Тимур победил Артура и Диму
-    assert "Тимур -> Артур Дима" in captured.out
     # Проверяем, что Дима победил Артура
     assert "Дима -> Артур" in captured.out
+    # Проверяем, что Тимур победил Артура и Диму
+    assert "Тимур -> Артур, Дима" in captured.out
 
 
 def test_solve_task_four_output_order(capsys):

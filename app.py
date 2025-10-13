@@ -24,8 +24,11 @@ def solve_task_one():
     # Словарь для накопления прибыли по каждому продукту
     products = {}
     for name, profit in data:
-        products[name] = products.get(name, 0) + profit
-    for name in sorted(products):
+        if name in products:
+            products[name] += profit
+        else:
+            products[name] = profit
+    for name in sorted(products.keys()):
         print(f"{name}: ${products[name]}")
 
 
@@ -80,15 +83,17 @@ def solve_task_two():
         ("Sales", "John White"),
         ("Marketing", "Charles Bailey"),
         ("Sales", "Chester Fernandez"),
-        ("Sales", "John Washington"),
+        ("Sales", "John Washington")
     ]
 
     departments = {}
-
     for dept, person in staff:
-        departments[dept] = departments.get(dept, 0) + 1
+        if dept in departments:
+            departments[dept] += 1
+        else:
+            departments[dept] = 1
 
-    for dept in sorted(departments):
+    for dept in sorted(departments.keys()):
         print(f"{dept}: {departments[dept]}")
 
 
@@ -170,19 +175,29 @@ def solve_task_three():
 
     departments = {}
     for dept, person in staff_broken:
-        departments.setdefault(dept, set()).add(person)
-    for dept in sorted(departments):
-        sorted_employees = sorted(departments[dept])
-        print(f"{dept}: {', '.join(sorted_employees)}")
+        if dept not in departments:
+            departments[dept] = set()
+        departments[dept].add(person)
+
+    for dept in sorted(departments.keys()):
+        unique_employees = sorted(list(departments[dept]))
+        employees_str = ", ".join(unique_employees)
+        print(f"{dept}: {employees_str}")
 
 
 def solve_task_four():
     pairs = [("Тимур", "Артур"), ("Тимур", "Дима"), ("Дима", "Артур")]
     result = {}
     for winner, loser in pairs:
-        result.setdefault(winner, set()).add(loser)
-    for winner, losers in sorted(result.items()):
-        print(winner, "->", *sorted(losers))
+        if winner not in result:
+            result[winner] = set()
+        result[winner].add(loser)
+
+    # Сортируем по именам победителей
+    for winner in sorted(result.keys()):
+        losers = sorted(list(result[winner]))
+        losers_str = ", ".join(losers)
+        print(f"{winner} -> {losers_str}")
 
 
 import random
@@ -193,12 +208,14 @@ def solve_ternary_operator():
     b = random.uniform(0, 100)
     d = a if a > b else b
     print(d)
+    return d
 
 
 def solve_multiplicity():
     n = random.randint(1, 100)
     msg = "кратно 3" if n % 3 == 0 else "не кратно 3"
     print(n, msg)
+    return n, msg
 
 
 print("\n * solve_task_one:")
@@ -209,7 +226,9 @@ print("\n * solve_task_three:")
 solve_task_three()
 print("\n * solve_task_four:")
 solve_task_four()
-print("\n * solve_ternar_operator:")
-solve_ternary_operator()
+print("\n * solve_ternary_operator:")
+result_ternary = solve_ternary_operator()
+print(result_ternary)
 print("\n * solve_multiplicity:")
-solve_multiplicity()
+result_multiplicity = solve_multiplicity()
+print(result_multiplicity[0], result_multiplicity[1])
