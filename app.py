@@ -200,7 +200,8 @@ def solve_ternary_operator():
     d = a if a > b else b
     print(d)
 
-def solve_multiplicity(n):
+def solve_multiplicity():
+    n = random.randint(1,100)
     msg = "кратно 3" if n % 3 == 0 else "не кратно 3"
     print(n,msg)
 
@@ -216,4 +217,4 @@ solve_task_four()
 print("\n * solve_ternar_operator:")
 solve_ternary_operator()
 print("\n * solve_multiplicity:")
-solve_multiplicity(random.randint(1,100))
+solve_multiplicity()
