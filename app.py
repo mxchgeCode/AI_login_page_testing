@@ -96,7 +96,6 @@ def solve_task_two():
     for dept in sorted(departments.keys()):
         print(f"{dept}: {departments[dept]}")
 
-
 def solve_task_three():
     staff_broken = [
         ("Developing", "Miguel Norris"),
