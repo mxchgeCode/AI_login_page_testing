@@ -1,5 +1,5 @@
 import pytest
-from app import solve_task_one, solve_task_two, solve_task_three, solve_task_four
+from app import solve_task_one, solve_task_two, solve_task_three, solve_task_four, solve_ternary_operator
 
 
 # === ЮНИТ-ТЕСТЫ ДЛЯ ФУНКЦИЙ ===

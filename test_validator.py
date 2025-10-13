@@ -73,12 +73,19 @@ class TestValidator:
         self, test_node: ast.FunctionDef
     ) -> List[str]:
         """Извлекает названия функций, покрываемых тестом"""
-        # Для простоты возвращаем все функции из app.py как покрываемые
-        # Поскольку тесты импортируют функции из app и тестируют их
-        app_functions = self.extract_functions_from_file(
-            self.config.get("app_file", "app.py")
-        )
-        return list(app_functions)
+        covered_functions = []
+
+        # Анализируем вызовы функций внутри тела теста
+        for node in ast.walk(test_node):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name):
+                    # Прямой вызов функции
+                    func_name = node.func.id
+                    # Проверяем, что это функция из app модуля (не встроенная функция Python)
+                    if func_name in ['solve_task_one', 'solve_task_two', 'solve_task_three', 'solve_task_four', 'solve_ternary_operator']:
+                        covered_functions.append(func_name)
+
+        return list(set(covered_functions))  # Убираем дубликаты
 
     def validate_tests(self) -> Dict[str, Dict[str, any]]:
         """Проверяет актуальность всех тестов"""
