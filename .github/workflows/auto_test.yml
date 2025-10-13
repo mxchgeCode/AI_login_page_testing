@@ -50,6 +50,23 @@ jobs:
         else
           echo "Changes detected in app.py"
           echo "changed=true" >> $GITHUB_OUTPUT
+
+          # Получаем список новых функций для коммита
+          python -c "
+          import ast
+          import os
+
+          if os.path.exists('app.py'):
+              with open('app.py', 'r') as f:
+                  code = f.read()
+
+              try:
+                  tree = ast.parse(code)
+                  functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
+                  print(f'functions={functions}' >> os.environ['GITHUB_OUTPUT'])
+              except:
+                  print('functions=[]' >> os.environ['GITHUB_OUTPUT'])
+          "
         fi
 
     - name: Generate and validate tests
@@ -104,6 +121,34 @@ jobs:
         fi
 
         echo "Test validation completed successfully"
+
+    - name: Commit and push generated tests
+      if: steps.check-changes.outputs.changed == 'true' && env.OPENROUTER_API_KEY != '' && env.TEST_EXIT_CODE == '0'
+      run: |
+        echo "Committing generated tests back to repository..."
+
+        # Настраиваем git
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+        # Добавляем измененные файлы
+        git add test_generated.py app_hash.txt test_config.json
+
+        # Проверяем, есть ли изменения для коммита
+        if git diff --quiet --staged; then
+          echo "No changes to commit"
+        else
+          git commit -m "🤖 Auto-generate tests for new functions
+
+  - Generated tests for new functions in app.py
+  - Updated test coverage and configuration
+  - Triggered by changes in app.py"
+
+          # Push изменения обратно в репозиторий
+          git push origin ${{ github.ref_name }}
+
+          echo "✅ Tests committed and pushed successfully"
+        fi
 
     - name: Upload test results and coverage
       if: always()

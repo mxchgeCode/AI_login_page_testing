@@ -51,33 +51,9 @@ class SmartTestGenerator:
 
         current_functions = self.extract_functions_from_code(current_code)
 
-        # Получаем функции, которые уже покрыты тестами
-        tests_file = self.config.get("tests_file", "test_generated.py")
-        if os.path.exists(tests_file):
-            with open(tests_file, "r", encoding="utf-8") as f:
-                existing_tests_code = f.read()
-
-            existing_test_functions = self.extract_functions_from_code(
-                existing_tests_code
-            )
-            # Фильтруем только тестовые функции
-            existing_test_functions = {
-                f for f in existing_test_functions if f.startswith("test_")
-            }
-
-            # Получаем информацию о покрытии из валидатора
-            validation_results = self.validator.validate_tests()
-
-            # Собираем все функции, которые уже покрыты тестами
-            covered_functions = set()
-            for test_name, result in validation_results.items():
-                covered_functions.update(result["existing_functions"])
-
-            # Возвращаем функции, которые есть в коде, но не покрыты тестами
-            return current_functions - covered_functions
-        else:
-            # Если файла тестов нет, то все функции новые
-            return current_functions
+        # Считаем файл test_generated пустым по умолчанию
+        # Все функции в app.py считаются новыми и требующими тестов
+        return current_functions
 
     def extract_code_from_response(self, text: str) -> str:
         """Извлекает Python-код из ответа модели"""
@@ -106,12 +82,24 @@ class SmartTestGenerator:
 
         The code resides in the module named 'app'. Write ONLY Python code, no explanations or markdown.
 
-        IMPORTANT: Use pytest best practices, not unittest:
+        CRITICAL TESTING REQUIREMENTS:
         - Use pytest fixtures (capsys, tmp_path, etc.) instead of unittest.mock.patch where possible
         - Use assert statements directly, not self.assertEqual()
         - Use descriptive test function names starting with 'test_'
         - For output capture, prefer capsys fixture over patch('sys.stdout')
         - Use pytest.raises() for exception testing instead of self.assertRaises()
+
+        SPECIFIC TESTING PATTERNS:
+        - For functions that print output: use capsys fixture and check captured.out
+        - For functions that return values: use direct assert statements
+        - For functions with randomness: mock random values or use pytest fixtures
+        - For functions with side effects: capture and verify the effects
+
+        CODE ANALYSIS:
+        - Analyze the function implementation carefully
+        - Understand what the function does and what it outputs
+        - Create tests that verify the correct behavior
+        - Handle edge cases and error conditions
 
         Tests should import necessary functions from 'app' module and use mocking only when necessary.
 
@@ -220,12 +208,8 @@ class SmartTestGenerator:
         """Выполняет полный цикл: проверка, очистка, генерация"""
         print("=== НАЧАЛО ЦИКЛА ГЕНЕРАЦИИ ТЕСТОВ ===")
 
-        # Проверяем, изменился ли файл
-        if not self.tracker.has_file_changed(self.config.get("app_file", "app.py")):
-            print("Файл не изменился, генерация тестов не требуется")
-            return False
-
-        print("Файл изменился, начинаем генерацию тестов...")
+        # Всегда считаем файл измененным и генерируем тесты для всех функций
+        print("Анализируем функции в app.py и генерируем тесты...")
 
         # Выводим отчет о валидации
         self.validator.print_validation_report()
@@ -240,7 +224,7 @@ class SmartTestGenerator:
         else:
             print("Устаревших тестов не найдено")
 
-        # Генерируем новые тесты
+        # Генерируем новые тесты для всех функций в app.py
         success = self.generate_and_append_tests()
 
         if success:

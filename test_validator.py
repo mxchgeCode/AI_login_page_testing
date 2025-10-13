@@ -82,7 +82,11 @@ class TestValidator:
                     # Прямой вызов функции
                     func_name = node.func.id
                     # Проверяем, что это функция из app модуля (не встроенная функция Python)
-                    if func_name in ['solve_task_one', 'solve_task_two', 'solve_task_three', 'solve_task_four', 'solve_ternary_operator']:
+                    # Получаем все функции из app.py для проверки
+                    app_functions = self.extract_functions_from_file(
+                        self.config.get("app_file", "app.py")
+                    )
+                    if func_name in app_functions:
                         covered_functions.append(func_name)
 
         return list(set(covered_functions))  # Убираем дубликаты

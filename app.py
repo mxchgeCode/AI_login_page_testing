@@ -176,7 +176,6 @@ def solve_task_three():
 
     for dept, person in staff_broken:
         departments.setdefault(dept, set()).add(person)
-
     for dept in sorted(departments):
         sorted_employees = sorted(departments[dept])
         print(f"{dept}: {', '.join(sorted_employees)}")
