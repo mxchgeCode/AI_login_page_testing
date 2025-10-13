@@ -2,7 +2,7 @@ name: Auto Test Generation and Execution
 
 on:
   push:
-    branches: [main, master, develop]
+    branches: [ main, master, develop ]
     paths:
       - 'app.py'
       - 'smart_test_generator.py'
@@ -50,23 +50,19 @@ jobs:
           else
             echo "Changes detected in app.py"
             echo "changed=true" >> $GITHUB_OUTPUT
-            # Получаем список новых функций для коммита
-            python - <<EOF
-            import ast
-            import os
-
-            if os.path.exists('app.py'):
-                with open('app.py', 'r') as f:
-                    code = f.read()
-                try:
-                    tree = ast.parse(code)
-                    functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
-                    with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
-                        out.write(f'functions={functions}\n')
-                except Exception:
-                    with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
-                        out.write('functions=[]\n')
-            EOF
+            python3 -c "
+          import ast
+          import os
+          if os.path.exists('app.py'):
+              with open('app.py', 'r') as f:
+                  code = f.read()
+              try:
+                  tree = ast.parse(code)
+                  functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
+                  print(f'functions={functions}')
+              except:
+                  print('functions=[]')
+          "
           fi
 
       - name: Generate and validate tests
@@ -103,38 +99,27 @@ jobs:
           python test_runner.py --tests-only
           TEST_EXIT_CODE=$?
           echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
-
-          # Проверяем, настроен ли API ключ
           if [ -n "$OPENROUTER_API_KEY" ]; then
-            # Если API ключ настроен, то ошибки критичны
             if [ $TEST_EXIT_CODE -ne 0 ]; then
               echo "Tests failed with API key configured, setting workflow as failed"
               exit 1
             fi
           else
-            # Если API ключ не настроен, то только ошибки тестов критичны
             if [ $TEST_EXIT_CODE -eq 1 ]; then
               echo "Tests failed even without API key, setting workflow as failed"
               exit 1
             fi
             echo "API key not configured, some features skipped - this is normal"
           fi
-
           echo "Test validation completed successfully"
 
       - name: Commit and push generated tests
         if: steps.check-changes.outputs.changed == 'true' && env.OPENROUTER_API_KEY != '' && env.TEST_EXIT_CODE == '0'
         run: |
           echo "Committing generated tests back to repository..."
-
-          # Настраиваем git
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-
-          # Добавляем измененные файлы
           git add test_generated.py app_hash.txt test_config.json
-
-          # Проверяем, есть ли изменения для коммита
           if git diff --quiet --staged; then
             echo "No changes to commit"
           else
@@ -143,9 +128,7 @@ jobs:
             Generated tests for new functions in app.py
             Updated test coverage and configuration
             Triggered by changes in app.py"
-            # Push изменения обратно в репозиторий
             git push origin ${{ github.ref_name }}
-
             echo "✅ Tests committed and pushed successfully"
           fi
 
@@ -173,10 +156,7 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-
             let comment = '## Test Results\n\n';
-
-            // Check if test_generated.py exists and read it
             try {
               if (fs.existsSync('test_generated.py')) {
                 const testContent = fs.readFileSync('test_generated.py', 'utf8');
@@ -188,8 +168,6 @@ jobs:
             } catch (error) {
               comment += `❌ Error reading test file: ${error.message}\n`;
             }
-
-            // Try to read test output from a potential log file
             try {
               if (fs.existsSync('pytest_output.log')) {
                 const output = fs.readFileSync('pytest_output.log', 'utf8');
@@ -200,7 +178,6 @@ jobs:
             } catch (error) {
               console.log('No test output file found');
             }
-
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

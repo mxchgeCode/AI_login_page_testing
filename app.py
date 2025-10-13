@@ -98,7 +98,6 @@ def solve_task_three():
         ("Sales", "Connie Reid"),
         ("Sales", "Joseph Lee"),
         ("Marketing", "Carol Peters"),
-        ("Accounting", "Linda Hudson"),
         ("Accounting", "Ann Bell"),
         ("Marketing", "Ralph Morgan"),
         ("Accounting", "Gloria Higgins"),
