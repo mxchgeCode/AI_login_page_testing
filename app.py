@@ -187,7 +187,6 @@ def solve_task_four():
     result = {}
     for winner, loser in pairs:
         result.setdefault(winner, set()).add(loser)
-
     for winner, losers in sorted(result.items()):
         print(winner, "->", *sorted(losers))
 

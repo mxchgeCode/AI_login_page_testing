@@ -223,10 +223,15 @@ class SmartTestGenerator:
         # Выводим отчет о валидации
         self.validator.print_validation_report()
 
-        # Удаляем устаревшие тесты
-        removed_count = self.validator.remove_obsolete_tests()
-        if removed_count > 0:
-            print(f"Удалено устаревших тестов: {removed_count}")
+        # Удаляем устаревшие тесты только если есть реальные устаревшие функции
+        obsolete_tests = self.validator.get_obsolete_tests()
+        if obsolete_tests:
+            print(f"Найдены устаревшие тесты: {len(obsolete_tests)}")
+            removed_count = self.validator.remove_obsolete_tests()
+            if removed_count > 0:
+                print(f"Удалено устаревших тестов: {removed_count}")
+        else:
+            print("Устаревших тестов не найдено")
 
         # Генерируем новые тесты
         success = self.generate_and_append_tests()
