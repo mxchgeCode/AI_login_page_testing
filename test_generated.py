@@ -1,5 +1,12 @@
 import pytest
-from app import solve_task_one, solve_task_two, solve_task_three, solve_task_four, solve_ternary_operator, solve_multiplicity
+from app import (
+    solve_task_one,
+    solve_task_two,
+    solve_task_three,
+    solve_task_four,
+    solve_ternary_operator,
+    solve_multiplicity,
+)
 
 
 def test_solve_task_one_books_total(capsys):
@@ -113,6 +120,7 @@ def test_solve_task_three_unique_employees(capsys):
 
 def test_solve_task_three_empty_input(capsys):
     """Тест функции solve_task_three с пустым списком сотрудников"""
+
     def solve_task_three_empty():
         staff_broken = []
         departments = {}
@@ -131,6 +139,7 @@ def test_solve_task_three_empty_input(capsys):
 
 def test_solve_task_three_invalid_input(capsys):
     """Тест функции solve_task_three с некорректными данными"""
+
     def solve_task_three_invalid():
         staff_broken = [
             ("", "John Doe"),

@@ -1,6 +1,3 @@
-# 6.5 Тип данных defaultdict
-
-
 def solve_task_one():
     data = [
         ("Books", 1343),
@@ -198,10 +195,11 @@ def solve_ternary_operator():
     d = a if a > b else b
     print(d)
 
+
 def solve_multiplicity():
-    n = random.randint(1,100)
+    n = random.randint(1, 100)
     msg = "кратно 3" if n % 3 == 0 else "не кратно 3"
-    print(n,msg)
+    print(n, msg)
 
 
 print("\n * solve_task_one:")

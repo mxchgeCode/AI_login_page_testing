@@ -1,210 +1,209 @@
 name: Auto Test Generation and Execution
 
 on:
- push:
-   branches: [ main, master, develop ]
-   paths:
-     - 'app.py'
-     - 'smart_test_generator.py'
-     - 'test_validator.py'
-     - 'code_tracker.py'
-     - 'test_runner.py'
-     - 'requirements.txt'
+  push:
+    branches: [main, master, develop]
+    paths:
+      - 'app.py'
+      - 'smart_test_generator.py'
+      - 'test_validator.py'
+      - 'code_tracker.py'
+      - 'test_runner.py'
+      - 'requirements.txt'
 
 jobs:
   test-generation:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 2
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip python3-venv
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-venv
 
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install requests pytest flake8 coverage pytest-cov pytest-mock
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pytest flake8 coverage pytest-cov pytest-mock
 
-    - name: Set up environment
-      run: |
-        echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> $GITHUB_ENV
+      - name: Set up environment
+        run: |
+          echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> $GITHUB_ENV
 
-    - name: Check for changes in app.py
-      id: check-changes
-      run: |
-        echo "Checking if app.py has changed..."
-        if git diff --quiet HEAD~1 HEAD -- app.py; then
-          echo "No changes in app.py"
-          echo "changed=false" >> $GITHUB_OUTPUT
-        else
-          echo "Changes detected in app.py"
-          echo "changed=true" >> $GITHUB_OUTPUT
+      - name: Check for changes in app.py
+        id: check-changes
+        run: |
+          echo "Checking if app.py has changed..."
+          if git diff --quiet HEAD~1 HEAD -- app.py; then
+            echo "No changes in app.py"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in app.py"
+            echo "changed=true" >> $GITHUB_OUTPUT
+            # Получаем список новых функций для коммита
+            python - <<EOF
+            import ast
+            import os
 
-          # Получаем список новых функций для коммита
-          python -c "
-          import ast
-          import os
-
-          if os.path.exists('app.py'):
-              with open('app.py', 'r') as f:
-                  code = f.read()
-
-              try:
-                  tree = ast.parse(code)
-                  functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
-                  print(f'functions={functions}' >> os.environ['GITHUB_OUTPUT'])
-              except:
-                  print('functions=[]' >> os.environ['GITHUB_OUTPUT'])
-          "
-        fi
-
-    - name: Generate and validate tests
-      if: steps.check-changes.outputs.changed == 'true'
-      run: |
-        echo "Running smart test generation..."
-        python smart_test_generator.py
-
-    - name: Run tests with coverage
-      run: |
-        echo "Running tests with coverage..."
-        coverage run -m pytest test_generated.py -v --cov=app --cov-report=term
-        echo "COVERAGE_EXIT_CODE=$?" >> $GITHUB_ENV
-        echo "Coverage data collected successfully"
-
-    - name: Generate coverage reports
-      run: |
-        echo "Generating coverage reports..."
-        if [ -f ".coverage" ]; then
-          echo "Coverage data found, generating reports..."
-          coverage xml -o coverage.xml || echo "XML report generation failed"
-          coverage report -m > coverage.txt || echo "Text report generation failed"
-          coverage json -o coverage.json || echo "JSON report generation failed"
-        else
-          echo "No coverage data found, creating empty reports..."
-          echo "No data to report" > coverage.txt
-          echo "<coverage><sources><source>.</source></sources><packages><package><classes><class><methods><method><lines><line><hits><hit></hit></hits></line></lines></method></methods></class></classes></package></packages></coverage>" > coverage.xml
-          echo '{"coverage": null, "no_data": true}' > coverage.json
-        fi
-
-    - name: Run test validation
-      run: |
-        echo "Running test validation..."
-        python test_runner.py --tests-only
-        TEST_EXIT_CODE=$?
-        echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
-
-        # Проверяем, настроен ли API ключ
-        if [ -n "$OPENROUTER_API_KEY" ]; then
-          # Если API ключ настроен, то ошибки критичны
-          if [ $TEST_EXIT_CODE -ne 0 ]; then
-            echo "Tests failed with API key configured, setting workflow as failed"
-            exit 1
+            if os.path.exists('app.py'):
+                with open('app.py', 'r') as f:
+                    code = f.read()
+                try:
+                    tree = ast.parse(code)
+                    functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
+                    with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+                        out.write(f'functions={functions}\n')
+                except Exception:
+                    with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+                        out.write('functions=[]\n')
+            EOF
           fi
-        else
-          # Если API ключ не настроен, то только ошибки тестов критичны
-          if [ $TEST_EXIT_CODE -eq 1 ]; then
-            echo "Tests failed even without API key, setting workflow as failed"
-            exit 1
+
+      - name: Generate and validate tests
+        if: steps.check-changes.outputs.changed == 'true'
+        run: |
+          echo "Running smart test generation..."
+          python smart_test_generator.py
+
+      - name: Run tests with coverage
+        run: |
+          echo "Running tests with coverage..."
+          coverage run -m pytest test_generated.py -v --cov=app --cov-report=term
+          echo "COVERAGE_EXIT_CODE=$?" >> $GITHUB_ENV
+          echo "Coverage data collected successfully"
+
+      - name: Generate coverage reports
+        run: |
+          echo "Generating coverage reports..."
+          if [ -f ".coverage" ]; then
+            echo "Coverage data found, generating reports..."
+            coverage xml -o coverage.xml || echo "XML report generation failed"
+            coverage report -m > coverage.txt || echo "Text report generation failed"
+            coverage json -o coverage.json || echo "JSON report generation failed"
+          else
+            echo "No coverage data found, creating empty reports..."
+            echo "No data to report" > coverage.txt
+            echo "<coverage><sources><source>.</source></sources><packages><package><classes><class><methods><method><lines><line><hits><hit></hit></hits></line></lines></method></methods></class></classes></package></packages></coverage>" > coverage.xml
+            echo '{"coverage": null, "no_data": true}' > coverage.json
           fi
-          echo "API key not configured, some features skipped - this is normal"
-        fi
 
-        echo "Test validation completed successfully"
+      - name: Run test validation
+        run: |
+          echo "Running test validation..."
+          python test_runner.py --tests-only
+          TEST_EXIT_CODE=$?
+          echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
 
-    - name: Commit and push generated tests
-      if: steps.check-changes.outputs.changed == 'true' && env.OPENROUTER_API_KEY != '' && env.TEST_EXIT_CODE == '0'
-      run: |
-        echo "Committing generated tests back to repository..."
+          # Проверяем, настроен ли API ключ
+          if [ -n "$OPENROUTER_API_KEY" ]; then
+            # Если API ключ настроен, то ошибки критичны
+            if [ $TEST_EXIT_CODE -ne 0 ]; then
+              echo "Tests failed with API key configured, setting workflow as failed"
+              exit 1
+            fi
+          else
+            # Если API ключ не настроен, то только ошибки тестов критичны
+            if [ $TEST_EXIT_CODE -eq 1 ]; then
+              echo "Tests failed even without API key, setting workflow as failed"
+              exit 1
+            fi
+            echo "API key not configured, some features skipped - this is normal"
+          fi
 
-        # Настраиваем git
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+          echo "Test validation completed successfully"
 
-        # Добавляем измененные файлы
-        git add test_generated.py app_hash.txt test_config.json
+      - name: Commit and push generated tests
+        if: steps.check-changes.outputs.changed == 'true' && env.OPENROUTER_API_KEY != '' && env.TEST_EXIT_CODE == '0'
+        run: |
+          echo "Committing generated tests back to repository..."
 
-        # Проверяем, есть ли изменения для коммита
-        if git diff --quiet --staged; then
-          echo "No changes to commit"
-        else
-          git commit -m "🤖 Auto-generate tests for new functions
+          # Настраиваем git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
 
-          Generated tests for new functions in app.py
-          Updated test coverage and configuration
-          Triggered by changes in app.py"
+          # Добавляем измененные файлы
+          git add test_generated.py app_hash.txt test_config.json
 
-          # Push изменения обратно в репозиторий
-          git push origin ${{ github.ref_name }}
+          # Проверяем, есть ли изменения для коммита
+          if git diff --quiet --staged; then
+            echo "No changes to commit"
+          else
+            git commit -m "🤖 Auto-generate tests for new functions
 
-          echo "✅ Tests committed and pushed successfully"
-        fi
+            Generated tests for new functions in app.py
+            Updated test coverage and configuration
+            Triggered by changes in app.py"
+            # Push изменения обратно в репозиторий
+            git push origin ${{ github.ref_name }}
 
-    - name: Upload test results and coverage
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: auto-test-results
-        path: |
-          test_generated.py
-          test_config.json
-          app_hash.txt
-          coverage.xml
-          coverage.txt
-          coverage.json
-          app.py
-          .coveragerc
-        retention-days: 14
-      continue-on-error: true
+            echo "✅ Tests committed and pushed successfully"
+          fi
 
-    - name: Comment PR with test results
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const fs = require('fs');
-          const path = require('path');
+      - name: Upload test results and coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-test-results
+          path: |
+            test_generated.py
+            test_config.json
+            app_hash.txt
+            coverage.xml
+            coverage.txt
+            coverage.json
+            app.py
+            .coveragerc
+          retention-days: 14
+        continue-on-error: true
 
-          let comment = '## Test Results\n\n';
+      - name: Comment PR with test results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
 
-          // Check if test_generated.py exists and read it
-          try {
-            if (fs.existsSync('test_generated.py')) {
-              const testContent = fs.readFileSync('test_generated.py', 'utf8');
-              const testCount = (testContent.match(/def test_/g) || []).length;
-              comment += `✅ Generated/Updated ${testCount} tests\n`;
-            } else {
-              comment += `⚠️ No tests were generated\n`;
+            let comment = '## Test Results\n\n';
+
+            // Check if test_generated.py exists and read it
+            try {
+              if (fs.existsSync('test_generated.py')) {
+                const testContent = fs.readFileSync('test_generated.py', 'utf8');
+                const testCount = (testContent.match(/def test_/g) || []).length;
+                comment += `✅ Generated/Updated ${testCount} tests\n`;
+              } else {
+                comment += `⚠️ No tests were generated\n`;
+              }
+            } catch (error) {
+              comment += `❌ Error reading test file: ${error.message}\n`;
             }
-          } catch (error) {
-            comment += `❌ Error reading test file: ${error.message}\n`;
-          }
 
-          // Try to read test output from a potential log file
-          try {
-            if (fs.existsSync('pytest_output.log')) {
-              const output = fs.readFileSync('pytest_output.log', 'utf8');
-              comment += '\n<details><summary>Test Output</summary>\n\n';
-              comment += '```\n' + output + '\n```\n';
-              comment += '</details>\n';
+            // Try to read test output from a potential log file
+            try {
+              if (fs.existsSync('pytest_output.log')) {
+                const output = fs.readFileSync('pytest_output.log', 'utf8');
+                comment += '\n<details><summary>Test Output</summary>\n\n';
+                comment += '```\n' + output + '\n```\n';
+                comment += '</details>\n';
+              }
+            } catch (error) {
+              console.log('No test output file found');
             }
-          } catch (error) {
-            console.log('No test output file found');
-          }
 
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          });
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
