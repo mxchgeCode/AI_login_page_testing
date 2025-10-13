@@ -19,6 +19,7 @@
 ### Конфигурация:
 - `.github/workflows/auto_test.yml` - GitHub Actions для автоматического запуска
 - `requirements.txt` - зависимости Python
+- `.coveragerc` - конфигурация покрытия кода
 
 ## Как работает система
 
@@ -67,16 +68,6 @@ python test_runner.py
 python test_runner.py --tests-only
 ```
 
-6. **Запуск тестов с измерением покрытия:**
-```bash
-python test_with_coverage.py
-```
-
-7. **Просмотр отчета покрытия:**
-```bash
-python test_with_coverage.py --summary
-```
-
 ### Автоматическое использование с GitHub
 
 1. Добавьте ваш `OPENROUTER_API_KEY` в секреты репозитория (Settings > Secrets and variables > Actions)
@@ -94,7 +85,6 @@ python test_with_coverage.py --summary
 - `coverage.xml` - отчет покрытия в формате XML
 - `coverage.txt` - текстовый отчет покрытия
 - `coverage.json` - отчет покрытия в формате JSON
-- `coverage_html/` - интерактивный HTML отчет покрытия
 - `app.py` - исходный код приложения
 - `test_config.json` - конфигурация системы
 
@@ -156,20 +146,9 @@ python test_with_coverage.py --summary
 
 Система автоматически измеряет покрытие кода при каждом запуске тестов.
 
-### Локальное использование
-
-```bash
-# Запуск тестов с coverage
-python test_with_coverage.py
-
-# Просмотр краткой информации о покрытии
-python test_with_coverage.py --summary
-```
-
 ### Отчеты покрытия
 
 После запуска тестов генерируются следующие отчеты:
-- **HTML отчет** (`coverage_html/index.html`) - интерактивный отчет для просмотра в браузере
 - **XML отчет** (`coverage.xml`) - для интеграции с CI/CD системами
 - **JSON отчет** (`coverage.json`) - машиночитаемый формат
 - **Текстовый отчет** (`coverage.txt`) - консольный отчет

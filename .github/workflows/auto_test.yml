@@ -5,7 +5,6 @@ on:
     branches: [ main, master, develop ]
     paths:
       - 'app.py'
-      - 'generate_tests.py'
       - 'smart_test_generator.py'
       - 'test_validator.py'
       - 'code_tracker.py'
@@ -71,7 +70,6 @@ jobs:
         echo "Generating coverage reports..."
         if [ -f ".coverage" ]; then
           echo "Coverage data found, generating reports..."
-          coverage html -d coverage_html || echo "HTML report generation failed"
           coverage xml -o coverage.xml || echo "XML report generation failed"
           coverage report -m > coverage.txt || echo "Text report generation failed"
           coverage json -o coverage.json || echo "JSON report generation failed"
@@ -80,14 +78,12 @@ jobs:
           echo "No data to report" > coverage.txt
           echo "<coverage><sources><source>.</source></sources><packages><package><classes><class><methods><method><lines><line><hits><hit></hit></hits></line></lines></method></methods></class></classes></package></packages></coverage>" > coverage.xml
           echo '{"coverage": null, "no_data": true}' > coverage.json
-          mkdir -p coverage_html
-          echo "<html><body><h1>No Coverage Data</h1><p>Coverage data was not collected during test execution.</p></body></html>" > coverage_html/index.html
         fi
 
-    - name: Run all tests (legacy)
+    - name: Run test validation
       run: |
-        echo "Running test suite..."
-        python test_runner.py
+        echo "Running test validation..."
+        python test_runner.py --tests-only
         TEST_EXIT_CODE=$?
         echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
 
@@ -107,7 +103,7 @@ jobs:
           echo "API key not configured, some features skipped - this is normal"
         fi
 
-        echo "Test suite completed successfully"
+        echo "Test validation completed successfully"
 
     - name: Upload test results and coverage
       if: always()
@@ -121,7 +117,6 @@ jobs:
           coverage.xml
           coverage.txt
           coverage.json
-          coverage_html/
           app.py
           .coveragerc
         retention-days: 14

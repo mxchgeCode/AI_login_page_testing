@@ -184,7 +184,6 @@ def solve_task_three():
 
 def solve_task_four():
     pairs = [("Тимур", "Артур"), ("Тимур", "Дима"), ("Дима", "Артур")]
-
     result = {}
     for winner, loser in pairs:
         result.setdefault(winner, set()).add(loser)
