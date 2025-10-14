@@ -210,7 +210,6 @@ def solve_ternary_operator():
     print(d)
 
 
-
 def solve_multiplicity():
     n = random.randint(1, 100)
     msg = "кратно 3" if n % 3 == 0 else "не кратно 3"

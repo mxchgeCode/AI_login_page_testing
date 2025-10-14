@@ -14,12 +14,15 @@ on:
 jobs:
   test-generation:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Разрешает запись в репозиторий
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -60,13 +63,11 @@ jobs:
       - name: Commit updated test file
         run: |
           echo "Committing updated test_generated.py to repository..."
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
           git add test_generated.py
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update test_generated.py with new tests for app.py changes" || echo "No changes to commit"
+            git commit -m "Update test_generated.py with new tests for app.py changes"
             git push
             echo "Updated test file committed successfully"
           fi
