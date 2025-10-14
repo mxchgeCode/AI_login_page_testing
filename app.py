@@ -208,14 +208,28 @@ def solve_ternary_operator():
     b = random.uniform(0, 100)
     d = a if a > b else b
     print(d)
-    return d
+
 
 
 def solve_multiplicity():
     n = random.randint(1, 100)
     msg = "кратно 3" if n % 3 == 0 else "не кратно 3"
     print(n, msg)
-    return n, msg
+
+
+def sound():
+    # Объявляем список названий нот
+    m = ['до', 'ре', 'ми', 'фа', 'соль', 'ля', 'си']
+
+    nums = [1, 6, 7]
+
+    # Формируем строку с названиями выбранных нот,
+    # используя тернарный оператор для диеза
+    result = ' '.join(
+        ('#' + m[n - 1]) if m[n - 1] in ('до', 'фа') else m[n - 1]
+        for n in nums
+    )
+    print(result)
 
 
 print("\n * solve_task_one:")
@@ -227,8 +241,8 @@ solve_task_three()
 print("\n * solve_task_four:")
 solve_task_four()
 print("\n * solve_ternary_operator:")
-result_ternary = solve_ternary_operator()
-print(result_ternary)
+solve_ternary_operator()
 print("\n * solve_multiplicity:")
-result_multiplicity = solve_multiplicity()
-print(result_multiplicity[0], result_multiplicity[1])
+solve_multiplicity()
+print("\n * sound:")
+sound()

@@ -86,9 +86,10 @@ jobs:
           fi
           echo "Test validation completed successfully"
 
-      - name: Skip test generation
+      - name: Generate tests for new functions
         run: |
-          echo "Test generation disabled to prevent incorrect tests"
+          echo "Generating tests for new or modified functions..."
+          python smart_test_generator.py
 
       - name: Upload test results and coverage
         uses: actions/upload-artifact@v4
