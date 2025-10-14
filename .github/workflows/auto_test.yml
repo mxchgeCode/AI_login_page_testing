@@ -52,6 +52,37 @@ jobs:
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
+      - name: Generate tests for new functions
+        run: |
+          echo "Generating tests for new or modified functions..."
+          python smart_test_generator.py
+
+      - name: Commit updated test file
+        run: |
+          echo "Committing updated test_generated.py to repository..."
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add test_generated.py
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update test_generated.py with new tests for app.py changes" || echo "No changes to commit"
+            git push
+            echo "Updated test file committed successfully"
+          fi
+
+      - name: Run all tests after generation
+        run: |
+          echo "Running all tests after test generation..."
+          python -m pytest test_generated.py -v --tb=short
+          TEST_EXIT_CODE=$?
+          echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
+          if [ $TEST_EXIT_CODE -ne 0 ]; then
+            echo "Tests failed, setting workflow as failed"
+            exit 1
+          fi
+          echo "All tests completed successfully"
+
       - name: Run tests with coverage
         run: |
           echo "Running tests with coverage..."
@@ -73,23 +104,6 @@ jobs:
             echo "<coverage><sources><source>.</source></sources><packages><package><classes><class><methods><method><lines><line><hits><hit></hit></hits></line></lines></method></methods></class></classes></package></packages></coverage>" > coverage.xml
             echo '{"coverage": null, "no_data": true}' > coverage.json
           fi
-
-      - name: Run test validation
-        run: |
-          echo "Running test validation..."
-          python -m pytest test_generated.py -v --tb=short
-          TEST_EXIT_CODE=$?
-          echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
-          if [ $TEST_EXIT_CODE -ne 0 ]; then
-            echo "Tests failed, setting workflow as failed"
-            exit 1
-          fi
-          echo "Test validation completed successfully"
-
-      - name: Generate tests for new functions
-        run: |
-          echo "Generating tests for new or modified functions..."
-          python smart_test_generator.py
 
       - name: Upload test results and coverage
         uses: actions/upload-artifact@v4
