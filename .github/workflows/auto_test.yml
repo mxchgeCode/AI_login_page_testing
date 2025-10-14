@@ -63,6 +63,8 @@ jobs:
       - name: Commit updated test file
         run: |
           echo "Committing updated test_generated.py to repository..."
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add test_generated.py
           if git diff --staged --quiet; then
             echo "No changes to commit"
