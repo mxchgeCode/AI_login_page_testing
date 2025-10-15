@@ -203,14 +203,16 @@ def solve_task_four():
 import random
 
 
-def solve_ternary_operator():
+def solve_ternary_operator(seed=42):
+    random.seed(seed)  # Фиксируем seed для детерминированного поведения
     a = random.uniform(0, 100)
     b = random.uniform(0, 100)
     d = a if a > b else b
     print(d)
 
 
-def solve_multiplicity():
+def solve_multiplicity(seed=42):
+    random.seed(seed)  # Фиксируем seed для детерминированного поведения
     n = random.randint(1, 100)
     msg = "кратно 3" if n % 3 == 0 else "не кратно 3"
     print(n, msg)

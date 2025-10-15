@@ -78,38 +78,27 @@ class SmartTestGenerator:
         # Создаем промпт для генерации тестов только для новых функций
         functions_str = ", ".join(functions)
         prompt = f"""
-        You are a Python developer. Generate pytest unit tests for the following functions: {functions_str}.
+        Generate simple pytest unit tests for the following functions: {functions_str}.
 
-        The code resides in the module named 'app'. Write ONLY Python code, no explanations or markdown.
+        The code is in module named 'app'. Write ONLY Python code, no explanations.
 
-        CRITICAL TESTING REQUIREMENTS:
-        - Use pytest fixtures (capsys, tmp_path, etc.) instead of unittest.mock.patch where possible
-        - Use assert statements directly, not self.assertEqual()
-        - Use descriptive test function names starting with 'test_'
-        - For output capture, prefer capsys fixture over patch('sys.stdout')
-        - Use pytest.raises() for exception testing instead of self.assertRaises()
+        REQUIREMENTS:
+        - Use simple assert statements
+        - Test function names should start with 'test_'
+        - For functions that print output: capture stdout and check content
+        - For functions with random: mock random.seed(42) at start of test
+        - Import functions from 'app' module
+        - Use unittest.mock.patch for external dependencies only
 
-        SPECIFIC TESTING PATTERNS:
-        - For functions that print output: use capsys fixture and check captured.out
-        - For functions that return values: use direct assert statements
-        - For functions with randomness: mock random values or use pytest fixtures
-        - For functions with side effects: capture and verify the effects
+        FOCUS ON:
+        - Test the main logic of each function
+        - Check that functions produce expected output
+        - Handle both normal cases and edge cases
 
-        CODE ANALYSIS:
-        - Analyze the function implementation carefully
-        - Understand what the function does and what it outputs
-        - Create tests that verify the CORRECT behavior based on actual function logic
-        - Handle edge cases and error conditions
-
-        IMPORTANT: Generate tests that match the ACTUAL behavior of the functions, not hypothetical behavior.
-
-        Tests should import necessary functions from 'app' module and use mocking only when necessary.
-
-        Here is the full code context:
-
+        CODE CONTEXT:
         {full_code}
 
-        Generate tests only for these specific functions: {functions_str}
+        Generate tests for these functions: {functions_str}
         """
 
         api_key = os.getenv("OPENROUTER_API_KEY")
