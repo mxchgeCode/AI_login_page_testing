@@ -232,6 +232,7 @@ def sound():
     )
     print(result)
 
+
 print("\n * solve_task_one:")
 solve_task_one()
 print("\n * solve_task_two:")

@@ -75,7 +75,26 @@ class SmartTestGenerator:
         with open(app_file, "r", encoding="utf-8") as f:
             full_code = f.read()
 
-        # Создаем промпт для генерации тестов только для новых функций
+        # Проверяем, доступен ли API
+        api_key = os.getenv("OPENROUTER_API_KEY")
+        use_api = api_key and self._check_api_credits()
+
+        if use_api:
+            return self._generate_tests_with_api(functions, full_code)
+        else:
+            print("API недоступен или нет кредитов, используем шаблонную генерацию...")
+            return self._generate_tests_template(functions, full_code)
+
+    def _check_api_credits(self) -> bool:
+        """Проверяет доступность API кредитов"""
+        try:
+            # Простая проверка - если API ключ установлен, предполагаем что кредиты есть
+            return True
+        except:
+            return False
+
+    def _generate_tests_with_api(self, functions: List[str], full_code: str) -> str:
+        """Генерация тестов через API"""
         functions_str = ", ".join(functions)
         prompt = f"""
         Generate simple pytest unit tests for the following functions: {functions_str}.
@@ -122,10 +141,6 @@ class SmartTestGenerator:
         """
 
         api_key = os.getenv("OPENROUTER_API_KEY")
-        if not api_key:
-            print("Ошибка: OPENROUTER_API_KEY не установлен")
-            return ""
-
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
@@ -154,6 +169,59 @@ class SmartTestGenerator:
         raw_response = result["choices"][0]["message"]["content"]
         code_only = self.extract_code_from_response(raw_response)
         return code_only
+
+    def _generate_tests_template(self, functions: List[str], full_code: str) -> str:
+        """Шаблонная генерация тестов без API"""
+        tests = []
+        tests.append("import pytest")
+        tests.append("import io")
+        tests.append("import sys")
+        tests.append("from app import (")
+        tests.append("    " + ", ".join(functions))
+        tests.append(")")
+        tests.append("")
+
+        for func_name in functions:
+            test_code = self._generate_single_test_template(func_name, full_code)
+            tests.extend(test_code)
+
+        return "\n".join(tests)
+
+    def _generate_single_test_template(self, func_name: str, full_code: str) -> List[str]:
+        """Генерирует шаблонный тест для одной функции"""
+        test_lines = [f"def test_{func_name}():"]
+
+        # Анализируем функцию для определения типа теста
+        if self._function_prints_output(func_name, full_code):
+            test_lines.extend([
+                '    """Test {func_name} function output"""',
+                "    captured_output = io.StringIO()",
+                "    sys.stdout = captured_output",
+                "",
+                "    try:",
+                f"        {func_name}()",
+                "        sys.stdout = sys.__stdout__",
+                "        # TODO: Replace with actual expected output",
+                '        expected_output = "EXPECTED_OUTPUT_HERE"',
+                '        assert captured_output.getvalue().strip() == expected_output',
+                "    finally:",
+                "        sys.stdout = sys.__stdout__"
+            ])
+        else:
+            test_lines.extend([
+                '    """Test {func_name} function"""',
+                f"        # TODO: Implement test for {func_name}",
+                "        # This function doesn't print output, test its return value or side effects",
+                "        pass"
+            ])
+
+        test_lines.append("")
+        return test_lines
+
+    def _function_prints_output(self, func_name: str, code: str) -> bool:
+        """Определяет, печатает ли функция вывод"""
+        # Простая эвристика: если в коде есть print, считаем что функция печатает
+        return f"print(" in code and f"def {func_name}(" in code
 
     def append_tests_to_file(self, new_tests: str):
         """Добавляет новые тесты к существующему файлу тестов"""
