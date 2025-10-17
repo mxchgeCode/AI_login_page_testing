@@ -85,15 +85,35 @@ class SmartTestGenerator:
         REQUIREMENTS:
         - Use simple assert statements
         - Test function names should start with 'test_'
-        - For functions that print output: capture stdout and check content
+        - For functions that print output: capture stdout and check EXACT content
         - For functions with random: mock random.seed(42) at start of test
         - Import functions from 'app' module
         - Use unittest.mock.patch for external dependencies only
 
-        FOCUS ON:
-        - Test the main logic of each function
-        - Check that functions produce expected output
-        - Handle both normal cases and edge cases
+        SPECIFIC INSTRUCTIONS:
+        - For functions that print output, use io.StringIO() to capture stdout
+        - Check the EXACT output including formatting and line breaks
+        - For data processing functions, verify the exact calculated values
+        - For random functions, set seed=42 and check deterministic results
+
+        EXAMPLE FORMAT:
+        import pytest
+        import io
+        import sys
+        from unittest.mock import patch
+        from app import function_name
+
+        def test_function_name():
+            # Capture stdout if function prints
+            captured_output = io.StringIO()
+            sys.stdout = captured_output
+
+            try:
+                function_name()
+                sys.stdout = sys.__stdout__
+                assert captured_output.getvalue().strip() == "expected exact output"
+            finally:
+                sys.stdout = sys.__stdout__
 
         CODE CONTEXT:
         {full_code}
@@ -113,7 +133,7 @@ class SmartTestGenerator:
 
         data = {
             "model": self.config.get("settings", {}).get(
-                "api_model", "meta-llama/llama-3.1-8b-instruct:free"
+                "api_model", "meta-llama/llama-3.1-70b-instruct"
             ),
             "messages": [{"role": "user", "content": prompt}],
             "temperature": self.config.get("settings", {}).get("temperature", 0),
