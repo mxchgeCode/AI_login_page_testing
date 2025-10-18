@@ -2,13 +2,70 @@
   "app_file": "app.py",
   "tests_file": "test_generated.py",
   "hash_file": "app_hash.txt",
-  "last_analysis": "2025-10-13T15:01:28.173962",
-  "test_history": [],
+  "last_analysis": "2025-10-18T18:15:09.770902",
+  "test_history": [
+    {
+      "name": "test_solve_multiplicity",
+      "status": "generated",
+      "coverage": [
+        "solve_multiplicity"
+      ],
+      "timestamp": "2025-10-18T18:15:09.771222"
+    },
+    {
+      "name": "test_solve_task_three",
+      "status": "generated",
+      "coverage": [
+        "solve_task_three"
+      ],
+      "timestamp": "2025-10-18T18:15:09.771558"
+    },
+    {
+      "name": "test_sound",
+      "status": "generated",
+      "coverage": [
+        "sound"
+      ],
+      "timestamp": "2025-10-18T18:15:09.771867"
+    },
+    {
+      "name": "test_solve_task_one",
+      "status": "generated",
+      "coverage": [
+        "solve_task_one"
+      ],
+      "timestamp": "2025-10-18T18:15:09.772185"
+    },
+    {
+      "name": "test_solve_task_two",
+      "status": "generated",
+      "coverage": [
+        "solve_task_two"
+      ],
+      "timestamp": "2025-10-18T18:15:09.772578"
+    },
+    {
+      "name": "test_solve_task_four",
+      "status": "generated",
+      "coverage": [
+        "solve_task_four"
+      ],
+      "timestamp": "2025-10-18T18:15:09.773031"
+    },
+    {
+      "name": "test_solve_ternary_operator",
+      "status": "generated",
+      "coverage": [
+        "solve_ternary_operator"
+      ],
+      "timestamp": "2025-10-18T18:15:09.773382"
+    }
+  ],
   "settings": {
     "auto_generate": true,
     "validate_existing_tests": true,
     "run_tests_after_generation": true,
-    "api_model": "meta-llama/llama-3.1-70b-instruct",
+    "api_model": "meta-llama/llama-3.3-8b-instruct:free",
     "max_tokens": 2000,
     "temperature": 0
   }
